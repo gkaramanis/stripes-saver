@@ -1,0 +1,39 @@
+// Native resources for Stripes.scr, compiled by rc.exe in Stripes.csproj.
+// version.h is written by the build from the Version and Copyright properties.
+#include "version.h"
+
+// Screen Saver Settings shows string 1 as the saver's name.
+STRINGTABLE
+BEGIN
+    1 "Stripes"
+END
+
+1 ICON "Stripes.ico"
+
+// CREATEPROCESS_MANIFEST_RESOURCE_ID, RT_MANIFEST
+1 24 "app.manifest"
+
+1 VERSIONINFO
+FILEVERSION STRIPES_VERSION
+PRODUCTVERSION STRIPES_VERSION
+FILEOS 0x40004
+FILETYPE 0x1
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "FileDescription", "Stripes"
+            VALUE "FileVersion", STRIPES_VERSION_TEXT
+            VALUE "InternalName", "Stripes"
+            VALUE "LegalCopyright", STRIPES_COPYRIGHT
+            VALUE "OriginalFilename", "Stripes.scr"
+            VALUE "ProductName", "Stripes"
+            VALUE "ProductVersion", STRIPES_VERSION_TEXT
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END

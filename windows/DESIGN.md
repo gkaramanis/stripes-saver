@@ -14,9 +14,9 @@ This describes how the Windows port is built. **What it draws, and when, is defi
 | Part | Choice | Why |
 |---|---|---|
 | Language | C# on **.NET 10 (LTS)** | Memory-safe and approachable for contributors |
-| Publish | **Native AOT** → one native exe, copied to `Stripes.scr` | No .NET runtime needed, about 2.4 MB, fast start |
+| Publish | **Native AOT** → one native exe, copied to `Stripes.scr` | No .NET runtime needed, about 3.2 MB, fast start |
 | Win32 | [CsWin32](https://github.com/microsoft/CsWin32) source-generated P/Invoke | AOT-safe access to windows, monitors, DPI, registry, dialogs |
-| Drawing | **Direct2D** on a Direct3D 11 device ([Vortice.Windows](https://github.com/amerkoleci/Vortice.Windows)) | Antialiased quads (Blinds), clipping (Iris), DirectWrite and shadow for the label |
+| Drawing | **Direct2D** `HwndRenderTarget`, one per window ([Vortice.Windows](https://github.com/amerkoleci/Vortice.Windows)) | Antialiased quads (Blinds), layer clipping (Iris), DirectWrite and shadow for the label. Much simpler than managing a D3D11 swap chain, and plenty fast at 30 fps |
 | Data | `data/stripes.json`, embedded as a resource and read with source-generated `System.Text.Json` | Shared with macOS. No reflection under AOT |
 | Options UI | Plain Win32 dialog | WinForms and WPF don't support Native AOT |
 
@@ -45,7 +45,17 @@ windows/
 
 Arguments are case-insensitive and accept `-` or `/`, and `:` or a space before the value. The process is per-monitor DPI aware (v2), hides the cursor in `/s`, and stops drawing while the display is off or the session is locked.
 
-**Name.** Windows shows the string resource with ID 1, falling back to the file name. Both say "Stripes". A VERSIONINFO resource carries the product name and the credit from the macOS `Info.plist`.
+**Resources.** `Stripes.rc` holds:
+- string 1, "Stripes", which Screen Saver Settings shows as the name (it falls back to the file name);
+- the icon (`Stripes.ico`, drawn from the global stripes by `icon.py`);
+- the manifest (per-monitor DPI v2, Windows 10/11, common controls 6);
+- a VERSIONINFO carrying the macOS `Info.plist` credit.
+
+The build compiles it with the Windows SDK's `rc.exe`, writing `version.h` from `Version` and `Copyright` in `Directory.Build.props`. Native AOT copies all of these into the native exe (verified).
+
+**Logging.** With the environment variable `STRIPES_LOG=1`, the saver appends what it does (mode, windows, exit reason, errors) to `%TEMP%\Stripes.log`.
+
+**Testing tip.** Opening a `.scr` through the shell (Explorer, `Start-Process`) uses its file association, which runs `"%1" /S` and drops any other arguments. To test `/p` or `/c`, start the file directly (`Process.Start` with `UseShellExecute = false`).
 
 ## Data
 
@@ -62,7 +72,8 @@ Each style is a **line-for-line port of its formulas in SPEC.md**, computed on t
 
 - **Stripe edges:** `round(i·W/n)`. Mosaic tile rows: `round(row·H/12)`. Axis-aligned stripes are drawn without antialiasing (no seams). Blinds quads are antialiased, with the 0.5 px right-edge overlap.
 - **Coordinates:** SPEC.md uses AppKit coordinates (origin bottom-left, y up). Direct2D's y points down, so one helper flips the vertical positions for Rise, Drop, Mosaic rows and the label corners.
-- **Timing:** 30 fps, with no redraws during the 15-second hold. Frames are paced by the swap chain or a timer, never a busy loop.
+- **Timing:** 30 fps, with no redraws during the 15-second hold. The message loop sleeps in `MsgWaitForMultipleObjectsEx` until the next frame is due (with a 1 ms timer resolution while running), so input stays responsive and the CPU stays idle between frames. The render targets present immediately rather than each waiting for vsync, so several monitors don't hold each other up.
+- **Native AOT and Vortice:** Vortice's `SharpGen.Runtime` reports trim warnings (IL2104) about a reflection fallback that only runs when managed code *implements* a COM interface (e.g. a custom text renderer). Stripes only *calls* Direct2D, and the AOT build is verified to draw correctly. The warning stays visible but doesn't fail the build. If a later feature needs a COM callback, switch that part to CsWin32's COM interop instead.
 - **Monitors:** as on macOS, each monitor runs its own independent timeline. All start at the first chosen location, and each has its own Random bags, Scatter/Mosaic orders and label corner.
 - **Label fonts:** `systemMono` → Cascadia Mono (falling back to Consolas), and `system` → Segoe UI. Any other value is an installed family name.
 
@@ -124,8 +135,8 @@ Releases are tagged `windows-vX.Y`.
 | Milestone | Scope | Status |
 |---|---|---|
 | M1 | Solution, data reader, names, ordering, tests | Done |
-| M2 | `/s` `/p` `/c` host, monitor windows, Direct2D drawing of the finished stripes, 30 fps timeline. Check Vortice under AOT, the preview child window, resources (string table, version info, icon) | |
-| M3 | The nine styles (Sweep and Fade first) plus Random, and the label | |
+| M2 | `/s` `/p` host, monitor windows, 30 fps timeline, Direct2D renderer, **all nine styles and Random** (ported with the draw list, since it needs every primitive anyway), resources. Checked: Vortice under AOT, the preview child window, resources in the AOT exe, and a pixel-exact match of the finished stripes | Done |
+| M3 | The label (DirectWrite, shadow, corners, year during the build), then checking every style against macOS reference frames | |
 | M4 | Options dialog and registry storage | |
 | M5 | Reference-frame comparison, CI (x64 + Arm64), `windows-v1.0` release | |
 
@@ -133,3 +144,5 @@ Releases are tagged `windows-vX.Y`.
 
 - Reference frames from `macos/tools/render` committed to the repo, so the port can be checked without a Mac.
 - The LICENSE copyright line for the Windows code (being agreed). The LICENSE's data path should read `data/stripes.json`.
+- **First label corner.** On macOS, `apply()` and `startAnimation()` both call `show()`, and each step moves the label corner. The first location's label therefore appears top-right, not bottom-left as SPEC.md's order suggests. The Windows port copies this (`Timeline` starts the corner at 1). Is it intended?
+- **Display changes.** Like many savers, `/s` currently ends when the display configuration changes (a monitor plugged in or out). Rebuilding the windows instead is possible if wanted.
