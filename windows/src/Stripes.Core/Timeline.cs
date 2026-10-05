@@ -33,7 +33,7 @@ public sealed class Timeline
 
     // Which corner holds the label: 0 bottom-left, then clockwise, one step per location.
     // macOS steps it twice before the first location (apply() and startAnimation() both call
-    // show()), so the first label sits top-right. Starting at 1 matches that.
+    // show()), so the first label sits top-right, as intended. Starting at 1 matches that.
     int corner = 1;
 
     public Timeline(IReadOnlyList<Location> locations, SaverSettings settings, Random random, double now)
