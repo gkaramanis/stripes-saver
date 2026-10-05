@@ -26,7 +26,8 @@ public static class DrawStyles
     }
 }
 
-// The saver's options, with the macOS keys, defaults and ranges (SPEC.md, Options).
+// The saver's options, with the macOS keys and ranges (SPEC.md, Options). The defaults match
+// macOS too, except Build In and Build Out, which default to Random on Windows (macOS: Sweep, Fade).
 public sealed record SaverSettings
 {
     public const int MinDrawIn = 5, MaxDrawIn = 60;
@@ -36,8 +37,8 @@ public sealed record SaverSettings
     public const string SystemMono = "systemMono";
     public const string System = "system";
 
-    public DrawStyle Style { get; init; } = DrawStyle.Sweep;
-    public DrawStyle ExitStyle { get; init; } = DrawStyle.Fade;
+    public DrawStyle Style { get; init; } = DrawStyle.Random;
+    public DrawStyle ExitStyle { get; init; } = DrawStyle.Random;
 
     // Seconds for the build in, and again for the build out.
     public double DrawIn { get; init; } = 14;

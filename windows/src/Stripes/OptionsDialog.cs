@@ -21,7 +21,7 @@ static unsafe class OptionsDialog
     // Control IDs, in tab order.
     const int IdStyle = 101, IdExit = 102, IdDuration = 103, IdDurationValue = 104, IdShowLabel = 105,
         IdFont = 106, IdSize = 107, IdSizeValue = 108, IdReset = 109, IdSearch = 110, IdList = 111,
-        IdCredit = 112, IdSelectedOnly = 113, IdStatus = 114, IdCancel = 2, IdDone = 1;
+        IdCredit = 112, IdSelectedOnly = 113, IdStatus = 114, IdAbout = 115, IdCancel = 2, IdDone = 1;
 
     const int ResetButton = 1000;
 
@@ -163,6 +163,9 @@ static unsafe class OptionsDialog
             case IdSearch when code == 0x0300:  // EN_CHANGE
                 Refilter();
                 return 1;
+            case IdAbout when code == 0:
+                ShowAbout();
+                return 1;
             case IdReset when code == 0:
                 ResetToDefaults();
                 return 1;
@@ -245,6 +248,7 @@ static unsafe class OptionsDialog
         Slider(IdSize, SaverSettings.MinLabelSize, SaverSettings.MaxLabelSize);
         Create("STATIC", IdSizeValue, 0);
         Create("BUTTON", IdReset, 0, "Reset to Defaults…");
+        Create("BUTTON", IdAbout, 0, "About…");
 
         Create("STATIC", 0, 0x10 /* SS_ETCHEDHORZ */, tabStop: false);
         Label("Locations", bold: true);
@@ -382,6 +386,56 @@ static unsafe class OptionsDialog
 
     // Resets the drawing options to the defaults after asking. The locations stay as they are,
     // and nothing is saved until Done.
+    // The credit in full, who made the ports, and where to donate, with working links.
+    static void ShowAbout()
+    {
+        var version = typeof(OptionsDialog).Assembly.GetName().Version?.ToString(3) ?? "";
+        var instance = (HINSTANCE)(nint)PInvoke.GetModuleHandle((PCWSTR)null).Value;
+        var icon = PInvoke.LoadIcon(instance, (PCWSTR)(char*)1);
+
+        fixed (char* title = "About Stripes")
+        fixed (char* main = "Stripes for Windows")
+        fixed (char* content = $"Version {version}\n\n"
+            + "Warming stripes by Ed Hawkins, University of Reading, under "
+            + "<a href=\"https://creativecommons.org/licenses/by/4.0/\">CC BY 4.0</a>. "
+            + "Colors sampled from <a href=\"https://showyourstripes.info\">showyourstripes.info</a> and animated.\n\n"
+            + "Original idea and MacOS version by G.Karamanis. Windows version by C.T.Blunt.\n\n"
+            + "The stripes are free to use. Show Your Stripes also accepts "
+            + "<a href=\"https://showyourstripes.info/support\">donations</a> "
+            + "for climate science and education at the University of Reading.")
+        {
+            var config = new TASKDIALOGCONFIG
+            {
+                cbSize = (uint)sizeof(TASKDIALOGCONFIG),
+                hwndParent = dialog,
+                dwFlags = TASKDIALOG_FLAGS.TDF_ENABLE_HYPERLINKS | TASKDIALOG_FLAGS.TDF_USE_HICON_MAIN
+                    | TASKDIALOG_FLAGS.TDF_POSITION_RELATIVE_TO_WINDOW | TASKDIALOG_FLAGS.TDF_ALLOW_DIALOG_CANCELLATION,
+                dwCommonButtons = TASKDIALOG_COMMON_BUTTON_FLAGS.TDCBF_CLOSE_BUTTON,
+                pszWindowTitle = title,
+                pszMainInstruction = main,
+                pszContent = content,
+                pfCallback = &AboutCallback,
+            };
+            config.Anonymous1.hMainIcon = icon;
+            PInvoke.TaskDialogIndirect(&config, null, null, null);
+        }
+    }
+
+    // Opens a link clicked in the About box in the default browser.
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
+    static HRESULT AboutCallback(HWND hwnd, uint notification, WPARAM wParam, LPARAM lParam, nint data)
+    {
+        const uint hyperlinkClicked = 3;  // TDN_HYPERLINK_CLICKED
+        if (notification == hyperlinkClicked)
+        {
+            fixed (char* open = "open")
+            {
+                PInvoke.ShellExecute(HWND.Null, open, (char*)lParam.Value, null, null, SHOW_WINDOW_CMD.SW_SHOWNORMAL);
+            }
+        }
+        return (HRESULT)0;  // S_OK
+    }
+
     static void ResetToDefaults()
     {
         fixed (char* title = "Stripes")
@@ -510,7 +564,8 @@ static unsafe class OptionsDialog
         PlaceLabel(y); Move(controls[IdFont], cx, y, ctrlW, S(400)); y += S(32);
         PlaceLabel(y); Move(controls[IdSize], cx - S(4), y, ctrlW + S(8), S(26));
         Move(controls[IdSizeValue], cx + ctrlW + gap, y + S(3), S(60), S(20)); y += S(34);
-        Move(controls[IdReset], cx, y, S(150), S(26)); y += S(40);
+        Move(controls[IdReset], cx, y, S(150), S(26));
+        Move(controls[IdAbout], cx + S(150) + gap, y, S(100), S(26)); y += S(40);
 
         var (separator, _, _) = labels[labelIndex++];
         Move(separator, m, y, width - 2 * m, 2); y += S(12);

@@ -35,8 +35,8 @@ public class SettingsCodecTests
     public void Stored_types_and_keys_match_the_design()
     {
         var stored = SettingsCodec.Write(new SaverSettings()).ToDictionary(v => v.Name, v => v.Value);
-        Assert.Equal("sweep", stored["style"]);
-        Assert.Equal("fade", stored["exitStyle"]);
+        Assert.Equal("random", stored["style"]);
+        Assert.Equal("random", stored["exitStyle"]);
         Assert.Equal(14, stored["drawIn"]);
         Assert.Equal(1, stored["showLabel"]);
         Assert.Equal("systemMono", stored["labelFont"]);
@@ -56,8 +56,8 @@ public class SettingsCodecTests
     public void Unusable_values_fall_back_to_defaults()
     {
         var s = Read(("style", "wobble"), ("exitStyle", 3), ("drawIn", "fast"), ("labelFont", ""), ("locations", new[] { "" }));
-        Assert.Equal(DrawStyle.Sweep, s.Style);
-        Assert.Equal(DrawStyle.Fade, s.ExitStyle);
+        Assert.Equal(DrawStyle.Random, s.Style);
+        Assert.Equal(DrawStyle.Random, s.ExitStyle);
         Assert.Equal(14, s.DrawIn);
         Assert.Equal("systemMono", s.LabelFont);
         Assert.Equal(["Global"], s.Locations);

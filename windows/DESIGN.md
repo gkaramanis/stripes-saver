@@ -85,12 +85,12 @@ Each style is a **line-for-line port of its formulas in SPEC.md**, computed on t
 
 ## Options
 
-The options use the same keys, defaults and ranges as macOS (SPEC.md → Options). They are stored in `HKCU\Software\Stripes`:
+The options use the same keys and ranges as macOS (SPEC.md → Options), and the same defaults except one: **Build In and Build Out default to Random on Windows** (macOS: Sweep and Fade). Carey chose this on 2026-10-05 so a new install shows off all nine styles; Reset to Defaults goes back to Random too. The options are stored in `HKCU\Software\Stripes`:
 
 | Key | Type | Default |
 |---|---|---|
-| `style` | REG_SZ | `sweep` |
-| `exitStyle` | REG_SZ | `fade` |
+| `style` | REG_SZ | `random` |
+| `exitStyle` | REG_SZ | `random` |
 | `drawIn` | REG_DWORD, seconds 5–60 | 14 |
 | `showLabel` | REG_DWORD 0/1 | 1 |
 | `labelFont` | REG_SZ | `systemMono` |
@@ -100,12 +100,13 @@ The options use the same keys, defaults and ranges as macOS (SPEC.md → Options
 `SettingsCodec` (Stripes.Core, unit-tested) converts the options to and from these values. Missing or unusable values fall back to the defaults, and numbers are clamped to their ranges, so a hand-edited registry can't break the saver. `SettingsStore` reads and writes the key. `/s` and `/p` read the options when they start, so a change applies the next time the saver runs.
 
 `OptionsDialog` matches the macOS sheet (`macos/OptionsSheet.swift`) control for control:
-- Build In and Build Out dropdowns, a Duration slider ("14 s"), "Show location and years" (which enables Font and Size), a Font dropdown, a Size slider ("24 pt") and `Reset to Defaults…`.
+- Build In and Build Out dropdowns, a Duration slider ("14 s"), "Show location and years" (which enables Font and Size), a Font dropdown, a Size slider ("24 pt"), `Reset to Defaults…` and `About…`.
   - The Font list starts with the system mono font (Cascadia Mono or Consolas) and Segoe UI, then every installed family from DirectWrite in Explorer order.
 - **Locations:** a search box ("Search 1069 locations") over a checkbox list, Global first.
   - `LocationSearch` matches location and region names, ignoring case and diacritics, with `FindNLSStringEx`. .NET's own culture-aware search doesn't work, because the saver runs in invariant globalization mode.
 - **Credit:** "Warming stripes by Ed Hawkins, University of Reading, under CC BY 4.0. Colors sampled from showyourstripes.info and animated.", with both links (a SysLink control, opened with `ShellExecute`).
 - **Bottom row:** "Selected only", "N selected", Cancel and Done. Done is disabled while no location is ticked and saves the locations in list order. Cancel, Esc and the close box save nothing.
+- **About:** `About…` opens a task dialog with the Stripes icon and version, the full CC BY 4.0 credit, "Original idea and MacOS version by G.Karamanis. Windows version by C.T.Blunt.", and the note that the stripes are free to use and that Show Your Stripes accepts donations. The links are live: CC BY 4.0, showyourstripes.info, and "donations" (https://showyourstripes.info/support). The short credit also stays at the foot of the dialog.
 - **Reset to Defaults:** `Reset to Defaults…` asks first with a task dialog ("Reset" / "Cancel"). It resets everything except Locations and saves nothing until Done.
 - **Window:** a plain Win32 dialog built in code, so it can resize (minimum 420 × 600) and re-lay itself out when it moves to a monitor with a different DPI. It opens centred over Screen Saver Settings at 480 × 640, using Segoe UI from the system's message font.
 

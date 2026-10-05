@@ -133,7 +133,8 @@ public class PainterTests
     [Fact]
     public void Build_out_paints_the_full_picture_then_the_exit_style_in_black()
     {
-        var timeline = new Timeline([Global], new SaverSettings(), new Random(1), now: 0);
+        var settings = new SaverSettings { Style = DrawStyle.Sweep, ExitStyle = DrawStyle.Fade };
+        var timeline = new Timeline([Global], settings, new Random(1), now: 0);
         var list = new DrawList();
         Painter.Frame(list, timeline.StateAt(14 + 15 + 7), W, H);
         var n = Global.YearCount;

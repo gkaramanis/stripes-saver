@@ -36,7 +36,7 @@ public class TimelineTests
     [Fact]
     public void Phases_follow_the_spec()
     {
-        var timeline = Make();  // build 14 s, hold 15 s, build out 14 s
+        var timeline = Make(new SaverSettings { Style = DrawStyle.Sweep, ExitStyle = DrawStyle.Fade });  // 14 s, 15 s, 14 s
 
         var f = timeline.StateAt(100 + 7);
         Assert.True(f.Building);
@@ -51,6 +51,15 @@ public class TimelineTests
         Assert.Equal(0.5, f.E, 6);
         Assert.Equal(DrawStyle.Sweep, f.StyleIn);
         Assert.Equal(DrawStyle.Fade, f.StyleOut);
+    }
+
+    [Fact]
+    public void Random_by_default_deals_real_styles()
+    {
+        var timeline = Make();
+        var f = timeline.StateAt(100);
+        Assert.NotEqual(DrawStyle.Random, f.StyleIn);
+        Assert.NotEqual(DrawStyle.Random, f.StyleOut);
     }
 
     [Fact]
