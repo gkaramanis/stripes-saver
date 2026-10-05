@@ -1,6 +1,6 @@
 # Warming stripes screensaver for macOS
 
-**[Download Stripes 1.0](https://github.com/gkaramanis/stripes-saver/releases/latest/download/Stripes-1.0.zip)** (288 KB, macOS 13 or later). Install steps are under [Download](#download).
+**[Download Stripes 1.0](https://github.com/gkaramanis/stripes-saver/releases/download/macos-v1.0/Stripes-1.0.zip)** (288 KB, macOS 13 or later). Install steps are under [Download](#download).
 
 *Note:* On macOS 26 and later, the `Options…` button can stop responding after the screensaver has run. It's a macOS bug that affects other third-party screensavers too. Quit and reopen System Settings, and `Options…` works again.
 
@@ -12,7 +12,7 @@ The bundle includes all 1,069 locations on [showyourstripes.info](https://showyo
 
 ## Download
 
-[Stripes 1.0](https://github.com/gkaramanis/stripes-saver/releases/latest/download/Stripes-1.0.zip) (288 KB). Requires macOS 13 or later, Apple silicon or Intel.
+[Stripes 1.0](https://github.com/gkaramanis/stripes-saver/releases/download/macos-v1.0/Stripes-1.0.zip) (288 KB). Requires macOS 13 or later, Apple silicon or Intel.
 
 I've tested Stripes on macOS 26 and 27 on Apple silicon. It should work on macOS 13 and later and on Intel Macs. If something doesn't work, email me at [stripes@karaman.is](mailto:stripes@karaman.is) with your macOS version and Mac model.
 
@@ -41,18 +41,25 @@ The warming stripes are published under [CC BY 4.0](https://creativecommons.org/
 
 The stripes are free to use. Show Your Stripes also accepts [donations](https://showyourstripes.info/support) for climate science and education at the University of Reading.
 
+## Repository layout
+
+| Folder | Contents |
+|---|---|
+| `data/` | `stripes.json`, shared by every platform, and `sample.py`, which builds it |
+| `macos/` | The macOS screensaver |
+
+[SPEC.md](SPEC.md) describes the options, the data and every style in detail, for ports to other platforms. A port goes in its own folder, such as `windows/`, reads `data/stripes.json`, and is released under its own tag, such as `windows-v1.0`. Send changes as pull requests.
+
 ## Building
 
-Porting to another platform? [SPEC.md](SPEC.md) describes the options, the data and every style in detail.
-
 ```sh
-./build.sh install     # build and install into ~/Library/Screen Savers
-./build.sh release     # sign with Developer ID, notarize, staple, zip to build/
-python3 sample.py      # refresh Resources/stripes.json (needs Pillow)
-python3 thumbnail.py   # redraw the System Settings thumbnails from the data
+macos/build.sh install     # build and install into ~/Library/Screen Savers
+macos/build.sh release     # sign with Developer ID, notarize, staple, zip to macos/build/
+python3 data/sample.py     # refresh data/stripes.json (needs Pillow)
+python3 macos/thumbnail.py # redraw the System Settings thumbnails from the data
 ```
 
-The build is universal (Apple silicon and Intel). `build.sh` uses a full Xcode when one is installed, because the Command Line Tools lack the Intel slice of a Swift support library. `sample.py` caches the images in `cache/` (about 35 MB). Delete it to pick up a new year of data.
+The build is universal (Apple silicon and Intel). `build.sh` uses a full Xcode when one is installed, because the Command Line Tools lack the Intel slice of a Swift support library. `sample.py` caches the images in `data/cache/` (about 35 MB). Delete it to pick up a new year of data.
 
 ## License
 

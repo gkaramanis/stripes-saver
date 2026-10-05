@@ -24,7 +24,7 @@ lipo -create build/Stripes-arm64 build/Stripes-x86_64 -output "$out/Contents/Mac
 rm build/Stripes-arm64 build/Stripes-x86_64
 
 cp Info.plist "$out/Contents/"
-cp Resources/stripes.json "$out/Contents/Resources/"
+cp ../data/stripes.json "$out/Contents/Resources/"
 
 # System Settings reads the thumbnail only from a TIFF holding both resolutions.
 tiffutil -cathidpicheck Resources/thumbnail.png Resources/thumbnail@2x.png \

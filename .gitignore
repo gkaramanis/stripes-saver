@@ -1,5 +1,6 @@
 build/
 cache/
+drafts/
 .DS_Store
 .claude/
 __pycache__/

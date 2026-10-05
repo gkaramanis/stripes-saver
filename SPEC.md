@@ -1,6 +1,6 @@
 # Stripes behaviour spec
 
-This describes what Stripes.saver 1.0 (build 9) draws and how, for anyone porting it to another platform. The Swift source is the reference; where this file and the code disagree, the code wins. File and line references point at `StripesView.swift` unless noted.
+This describes what Stripes.saver 1.0 (build 9) draws and how, for anyone porting it to another platform. The Swift source in `macos/` is the reference; where this file and the code disagree, the code wins. File and line references point at `macos/StripesView.swift` unless noted.
 
 Coordinates follow AppKit, with the origin at the bottom-left and y pointing up. A port with y pointing down has to flip the vertical positions in Rise, Drop and the label.
 
@@ -24,7 +24,7 @@ Coordinates follow AppKit, with the origin at the bottom-left and y pointing up.
 
 ## Data
 
-`Resources/stripes.json` is built by `sample.py`. It samples one colour per year from every official image on [showyourstripes.info](https://showyourstripes.info).
+`data/stripes.json` is built by `data/sample.py`. It samples one colour per year from every official image on [showyourstripes.info](https://showyourstripes.info).
 
 ```json
 {
@@ -136,11 +136,12 @@ The label is drawn only if Show location and years is on.
 
 ## Reference frames
 
-`tools/render` renders a style's frames to PNG, using the Global series with the label off and the same style for build in and build out. The defaults are 960 × 540 at 30 fps with a 3-second build. It needs a Mac. Frames rendered from it are the easiest way to check a port against the original.
+`macos/tools/render` renders a style's frames to PNG, using the Global series with the label off and the same style for build in and build out. The defaults are 960 × 540 at 30 fps with a 3-second build. It needs a Mac. Frames rendered from it are the easiest way to check a port against the original.
 
 ```sh
+cd macos
 swiftc -O -module-name Stripes -framework ScreenSaver -framework AppKit -o /tmp/render *.swift tools/render/main.swift
-cp Resources/stripes.json /tmp/
+cp ../data/stripes.json /tmp/
 /tmp/render <style> <out-dir> [width height fps seconds [in]]   # e.g. /tmp/render mosaic /tmp/frames 640 360 24 14 in
 ```
 

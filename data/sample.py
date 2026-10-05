@@ -1,8 +1,8 @@
-"""Build Resources/stripes.json by sampling one colour per year from every
+"""Build data/stripes.json by sampling one colour per year from every
 official Show Your Stripes image (showyourstripes.info, CC BY 4.0, Ed Hawkins).
 
-Images are cached in cache/, so reruns only download what is missing.
-Delete cache/ to pick up a new year of data.
+Images are cached in data/cache/, so reruns only download what is missing.
+Delete data/cache/ to pick up a new year of data.
 """
 import json
 import re
@@ -16,7 +16,8 @@ from pathlib import Path
 from PIL import Image
 
 SITE = "https://showyourstripes.info"
-CACHE = Path("cache")
+HERE = Path(__file__).parent
+CACHE = HERE / "cache"
 
 # Each year is stored as one character indexing into the shared palette.
 KEYS = string.digits + string.ascii_letters
@@ -107,7 +108,7 @@ def main():
         print("skipped (non-uniform stripes):", p, file=sys.stderr)
     print(f"{len(locations)} locations, {len(palette)} colours", file=sys.stderr)
 
-    with open("Resources/stripes.json", "w") as f:
+    with open(HERE / "stripes.json", "w") as f:
         json.dump({"palette": palette, "locations": locations}, f, separators=(",", ":"))
 
 
