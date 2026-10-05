@@ -6,4 +6,7 @@
   <Folder Name="/tests/">
     <Project Path="tests/Stripes.Core.Tests/Stripes.Core.Tests.csproj" />
   </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/Render/Render.csproj" />
+  </Folder>
 </Solution>

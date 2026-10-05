@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Vortice.Direct2D1;
+using Vortice.DirectWrite;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Graphics.Gdi;
@@ -32,7 +33,11 @@ static unsafe class SaverHost
         var instance = (HINSTANCE)(nint)PInvoke.GetModuleHandle((PCWSTR)null).Value;
         RegisterWindowClass(instance);
 
-        using var factory = D2D1.D2D1CreateFactory<ID2D1Factory>(FactoryType.SingleThreaded);
+        using var factory = D2D1.D2D1CreateFactory<ID2D1Factory>(Vortice.Direct2D1.FactoryType.SingleThreaded);
+        using var writeFactory = DWrite.DWriteCreateFactory<IDWriteFactory>(Vortice.DirectWrite.FactoryType.Shared);
+        var family = LabelPainter.ResolveFamily(writeFactory, settings.LabelFont);
+        Log.Info($"label font {family}");
+        var fonts = (writeFactory, family);
         var locations = data.Resolve(settings.Locations);
         var now = Now();
 
@@ -41,13 +46,13 @@ static unsafe class SaverHost
             previewParent = (HWND)args.Window;
             RECT r;
             if (!PInvoke.GetClientRect(previewParent, &r)) return 1;
-            Create(factory, instance, previewParent, r, locations, settings, now);
+            Create(factory, fonts, instance, previewParent, r, locations, settings, now);
         }
         else
         {
             // Like macOS, each monitor runs its own timeline: same locations, its own random orders.
             PInvoke.EnumDisplayMonitors(HDC.Null, (RECT*)null, &OnMonitor, 0);
-            foreach (var r in monitors) Create(factory, instance, HWND.Null, r, locations, settings, now);
+            foreach (var r in monitors) Create(factory, fonts, instance, HWND.Null, r, locations, settings, now);
         }
         Log.Info($"{windows.Count} window(s)");
         if (windows.Count == 0) return 1;
@@ -92,7 +97,7 @@ static unsafe class SaverHost
         }
     }
 
-    static void Create(ID2D1Factory factory, HINSTANCE instance, HWND parent, RECT r,
+    static void Create(ID2D1Factory factory, (IDWriteFactory Factory, string Family) fonts, HINSTANCE instance, HWND parent, RECT r,
         IReadOnlyList<Location> locations, SaverSettings settings, double now)
     {
         var preview = parent != HWND.Null;
@@ -112,8 +117,21 @@ static unsafe class SaverHost
         Log.Info($"window {(nint)hwnd} {width}x{height} at {r.left},{r.top} preview={preview}");
         if (hwnd == HWND.Null) return;
 
+        LabelPainter? label = null;
+        if (settings.ShowLabel)
+        {
+            // The label shrinks with the preview, measured against its monitor, and grows with the DPI.
+            var info = new MONITORINFO { cbSize = (uint)sizeof(MONITORINFO) };
+            PInvoke.GetMonitorInfo(PInvoke.MonitorFromWindow(hwnd, MONITOR_FROM_FLAGS.MONITOR_DEFAULTTONEAREST), &info);
+            var screenHeight = info.rcMonitor.bottom - info.rcMonitor.top;
+            // GetDpiForWindow needs Windows 10 1607; per-monitor DPI needs it too, so 1 is right before it.
+            var scale = OperatingSystem.IsWindowsVersionAtLeast(10, 0, 14393) ? PInvoke.GetDpiForWindow(hwnd) / 96.0 : 1;
+            var size = (float)(Label.Size(settings.LabelSize, height, screenHeight) * scale);
+            label = new LabelPainter(fonts.Factory, fonts.Family, size);
+        }
+
         var timeline = new Timeline(locations, settings, new Random(), now);
-        windows[hwnd] = new SaverWindow(new StripesRenderer(factory, hwnd, width, height), timeline, width, height);
+        windows[hwnd] = new SaverWindow(new StripesRenderer(factory, hwnd, width, height, label), timeline, width, height);
     }
 
     static int Loop()
@@ -255,7 +273,7 @@ sealed class SaverWindow(StripesRenderer renderer, Timeline timeline, int width,
     void Draw(FrameState frame)
     {
         Painter.Frame(list, frame, width, height);
-        renderer.Render(list);
+        renderer.Render(list, Label.For(frame));
     }
 
     public void Dispose() => renderer.Dispose();

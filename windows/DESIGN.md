@@ -29,6 +29,9 @@ windows/
   src/Stripes.Core/            platform-neutral logic: data, timeline, styles (unit-tested)
   src/Stripes/                 the .scr: screen saver host, Direct2D renderer, options dialog
   tests/Stripes.Core.Tests/    xUnit tests for Stripes.Core
+  tools/Render/                renders a style's frames to PNG, the twin of macos/tools/render
+  tools/compare.py             compares macOS and Windows frames
+  icon.py                      draws src/Stripes/Stripes.ico from the global stripes
 ```
 
 `Stripes.Core` has no window or GPU code, so everything that decides *what* to draw can be tested without a display. `Stripes` only turns the draw lists into pixels and handles Windows.
@@ -75,7 +78,10 @@ Each style is a **line-for-line port of its formulas in SPEC.md**, computed on t
 - **Timing:** 30 fps, with no redraws during the 15-second hold. The message loop sleeps in `MsgWaitForMultipleObjectsEx` until the next frame is due (with a 1 ms timer resolution while running), so input stays responsive and the CPU stays idle between frames. The render targets present immediately rather than each waiting for vsync, so several monitors don't hold each other up.
 - **Native AOT and Vortice:** Vortice's `SharpGen.Runtime` reports trim warnings (IL2104) about a reflection fallback that only runs when managed code *implements* a COM interface (e.g. a custom text renderer). Stripes only *calls* Direct2D, and the AOT build is verified to draw correctly. The warning stays visible but doesn't fail the build. If a later feature needs a COM callback, switch that part to CsWin32's COM interop instead.
 - **Monitors:** as on macOS, each monitor runs its own independent timeline. All start at the first chosen location, and each has its own Random bags, Scatter/Mosaic orders and label corner.
-- **Label fonts:** `systemMono` → Cascadia Mono (falling back to Consolas), and `system` → Segoe UI. Any other value is an installed family name.
+- **Label fonts:** `systemMono` → Cascadia Mono (falling back to Consolas), and `system` → Segoe UI. Any other value is an installed family name, falling back to the mono font if it isn't installed.
+- **Label:** `Label` in Stripes.Core works out the text, year, opacity and corner (unit-tested). `LabelPainter` draws it with DirectWrite at medium weight, with grayscale antialiasing.
+  - **Size:** the label size in points is treated as DIPs. It is scaled by the window's share of its monitor's height (so it shrinks in the preview, never below 10) and by the monitor's DPI.
+  - **Shadow:** a Direct2D Shadow effect over the text rendered into its own premultiplied bitmap. A compatible render target's bitmap can't be an effect input while it is still that target's target, so the text is copied into a plain bitmap. NSShadow's blur radius (size/4) maps to a Gaussian standard deviation of size/8. The shadow's opacity is 0.5 × the text's 0.75 × the label's fade, as NSShadow derives it from the drawn text.
 
 ## Options
 
@@ -100,7 +106,12 @@ The dialog matches the macOS sheet:
 ## Testing
 
 - **Unit tests** (`tests/`): data loading and validation, names, ordering, and the fallback to Global. As styles land, tests cover their helpers (`smooth`, `waveAt`, `dropFall`, the Blinds projection) and the draw lists at chosen progress values.
-- **Against macOS:** frames from `macos/tools/render` (Global, label off) are the reference. A matching Windows render tool will compare frames per pixel with a small tolerance for antialiasing and font differences. *This needs reference frames committed from a Mac.*
+- **Against macOS:** frames from `macos/tools/render` (Global, label off) are the reference. `tools/Render` renders the same frames on Windows, with the same arguments, timing and file names, through the saver's own drawing code, plus `--seed n` to fix Scatter's and Mosaic's orders. `tools/compare.py <mac-dir> <windows-dir>` reports the share of pixels that differ beyond a small tolerance. *This needs reference frames committed from a Mac.* The macOS tool shuffles without a seed, so Scatter and Mosaic can only match in their first and last frames.
+
+```powershell
+dotnet run --project tools\Render -- blinds frames\blinds --seed 1     # 960x540, 30 fps, 3 s build
+python tools\compare.py mac-frames\blinds frames\blinds
+```
 - **By hand:** `/s`, `/p` and `/c`, no arguments, multiple monitors, mixed DPI, plugging a monitor in or out, Remote Desktop, lock/unlock and display power-off.
 
 ## Building
@@ -136,13 +147,14 @@ Releases are tagged `windows-vX.Y`.
 |---|---|---|
 | M1 | Solution, data reader, names, ordering, tests | Done |
 | M2 | `/s` `/p` host, monitor windows, 30 fps timeline, Direct2D renderer, **all nine styles and Random** (ported with the draw list, since it needs every primitive anyway), resources. Checked: Vortice under AOT, the preview child window, resources in the AOT exe, and a pixel-exact match of the finished stripes | Done |
-| M3 | The label (DirectWrite, shadow, corners, year during the build), then checking every style against macOS reference frames | |
+| M3 | The label (DirectWrite, shadow, corners, year during the build, fade-out), the render tool and the comparison script. All nine styles rendered and reviewed by eye | Done, apart from the comparison against macOS frames, which is waiting on reference frames |
 | M4 | Options dialog and registry storage | |
 | M5 | Reference-frame comparison, CI (x64 + Arm64), `windows-v1.0` release | |
 
 ## Open questions
 
-- Reference frames from `macos/tools/render` committed to the repo, so the port can be checked without a Mac.
+- Reference frames from `macos/tools/render` committed to the repo, so the port can be checked without a Mac. A `--seed` option there (and a seeded shuffle in `show()`) would let Scatter and Mosaic be compared frame by frame too.
+- **Shadow blur.** NSShadow's `shadowBlurRadius` maps to Direct2D's Gaussian standard deviation as radius / 2. That is a judgement by eye; reference frames *with the label on* would confirm it.
 - The LICENSE copyright line for the Windows code (being agreed). The LICENSE's data path should read `data/stripes.json`.
 - **First label corner.** On macOS, `apply()` and `startAnimation()` both call `show()`, and each step moves the label corner. The first location's label therefore appears top-right, not bottom-left as SPEC.md's order suggests. The Windows port copies this (`Timeline` starts the corner at 1). Is it intended?
 - **Display changes.** Like many savers, `/s` currently ends when the display configuration changes (a monitor plugged in or out). Rebuilding the windows instead is possible if wanted.

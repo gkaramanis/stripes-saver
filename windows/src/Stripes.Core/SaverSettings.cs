@@ -40,7 +40,7 @@ public sealed record SaverSettings
     public DrawStyle ExitStyle { get; init; } = DrawStyle.Fade;
 
     // Seconds for the build in, and again for the build out.
-    public int DrawIn { get; init; } = 14;
+    public double DrawIn { get; init; } = 14;
     public bool ShowLabel { get; init; } = true;
     public string LabelFont { get; init; } = SystemMono;
 
