@@ -43,6 +43,8 @@ The stripes are free to use. Show Your Stripes also accepts [donations](https://
 
 ## Building
 
+Porting to another platform? [SPEC.md](SPEC.md) describes the options, the data and every style in detail.
+
 ```sh
 ./build.sh install     # build and install into ~/Library/Screen Savers
 ./build.sh release     # sign with Developer ID, notarize, staple, zip to build/
