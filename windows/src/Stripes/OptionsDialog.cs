@@ -21,7 +21,7 @@ static unsafe class OptionsDialog
     // Control IDs, in tab order.
     const int IdStyle = 101, IdExit = 102, IdDuration = 103, IdDurationValue = 104, IdShowLabel = 105,
         IdFont = 106, IdSize = 107, IdSizeValue = 108, IdReset = 109, IdSearch = 110, IdList = 111,
-        IdCredit = 112, IdSelectedOnly = 113, IdStatus = 114, IdAbout = 115, IdCancel = 2, IdDone = 1;
+        IdSelectedOnly = 113, IdStatus = 114, IdAbout = 115, IdCancel = 2, IdDone = 1;
 
     const int ResetButton = 1000;
 
@@ -46,7 +46,7 @@ static unsafe class OptionsDialog
         {
             dwSize = (uint)sizeof(INITCOMMONCONTROLSEX),
             dwICC = INITCOMMONCONTROLSEX_ICC.ICC_LISTVIEW_CLASSES | INITCOMMONCONTROLSEX_ICC.ICC_BAR_CLASSES
-                | INITCOMMONCONTROLSEX_ICC.ICC_STANDARD_CLASSES | INITCOMMONCONTROLSEX_ICC.ICC_LINK_CLASS,
+                | INITCOMMONCONTROLSEX_ICC.ICC_STANDARD_CLASSES,
         };
         PInvoke.InitCommonControlsEx(&icc);
 
@@ -111,7 +111,7 @@ static unsafe class OptionsDialog
             case 0x0024:  // WM_GETMINMAXINFO
             {
                 var info = (MINMAXINFO*)lParam.Value;
-                info->ptMinTrackSize = new System.Drawing.Point(S(420), S(600));
+                info->ptMinTrackSize = new System.Drawing.Point(S(420), S(550));
                 return 1;
             }
 
@@ -194,19 +194,6 @@ static unsafe class OptionsDialog
             UpdateStatus();
             return 0;
         }
-
-        // A link in the credit, clicked or chosen with Enter.
-        if ((int)hdr->idFrom == IdCredit && (hdr->code == unchecked((uint)-2) || hdr->code == unchecked((uint)-4)))
-        {
-            var link = (NMLINK*)hdr;
-            var url = new string((char*)&link->item.szUrl);
-            fixed (char* open = "open")
-            fixed (char* target = url)
-            {
-                PInvoke.ShellExecute(HWND.Null, open, target, null, null, SHOW_WINDOW_CMD.SW_SHOWNORMAL);
-            }
-            return 1;
-        }
         return 0;
     }
 
@@ -266,12 +253,6 @@ static unsafe class OptionsDialog
         Send(list, 0x1036, (nuint)listStyles, listStyles);  // LVM_SETEXTENDEDLISTVIEWSTYLE
         var column = new LVCOLUMNW { mask = LVCOLUMNW_MASK.LVCF_WIDTH, cx = 100 };
         Send(list, 0x1061, 0, (nint)(&column));  // LVM_INSERTCOLUMNW
-
-        // CC BY 4.0 asks for credit, a link to the licence and a note of changes.
-        Create("SysLink", IdCredit, 0,
-            "Warming stripes by Ed Hawkins, University of Reading, under "
-            + "<a href=\"https://creativecommons.org/licenses/by/4.0/\">CC BY 4.0</a>. "
-            + "Colors sampled from <a href=\"https://showyourstripes.info\">showyourstripes.info</a> and animated.");
 
         Create("BUTTON", IdSelectedOnly, 0x0003, "Selected only");
         Create("STATIC", IdStatus, 0, tabStop: false);
@@ -529,7 +510,7 @@ static unsafe class OptionsDialog
             PInvoke.GetMonitorInfo(PInvoke.MonitorFromWindow(dialog, MONITOR_FROM_FLAGS.MONITOR_DEFAULTTONEAREST), &info);
             area = info.rcWork;
         }
-        int w = S(480), h = S(640);
+        int w = S(480), h = S(590);
         var x = (area.left + area.right - w) / 2;
         var y = Math.Max(area.top, (area.top + area.bottom - h) / 2);
         PInvoke.SetWindowPos(dialog, HWND.Null, x, y, w, h, SET_WINDOW_POS_FLAGS.SWP_NOZORDER);
@@ -574,11 +555,8 @@ static unsafe class OptionsDialog
         Move(controls[IdSearch], m, y, width - 2 * m, rowH); y += rowH + S(8);
 
         var buttonsY = height - m - S(26);
-        var creditH = S(36);
-        var creditY = buttonsY - S(10) - creditH;
-        Move(controls[IdList], m, y, width - 2 * m, Math.Max(S(60), creditY - S(10) - y));
+        Move(controls[IdList], m, y, width - 2 * m, Math.Max(S(60), buttonsY - S(12) - y));
         Send(controls[IdList], 0x101E, 0, -2);  // LVM_SETCOLUMNWIDTH, fill the width
-        Move(controls[IdCredit], m, creditY, width - 2 * m, creditH);
 
         Move(controls[IdSelectedOnly], m, buttonsY + S(3), S(120), S(20));
         Move(controls[IdStatus], m + S(128), buttonsY + S(5), S(140), S(20));
