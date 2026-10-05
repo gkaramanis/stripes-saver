@@ -6,9 +6,9 @@ The Windows port of the original MacOS Stripes screensaver. It draws the warming
 
 Stripes runs on Windows 10 (version 1607 or later) and Windows 11, on Intel/AMD (x64) and Arm64 PCs. It is a single file, `Stripes.scr`, and needs nothing else installed.
 
-1. **Download** `Stripes.scr` from the [Releases](https://github.com/gkaramanis/stripes-saver/releases) page: pick the latest `windows-v…` release, then the **x64** file for most PCs or **Arm64** for Snapdragon-based PCs. If you're not sure which you have, see Settings → System → About → **System type**.
-2. **Unblock it.** The file isn't code-signed, so Windows treats a downloaded copy with caution. Right-click `Stripes.scr` → **Properties**, tick **Unblock** at the bottom of the General tab (if it's there), and click **OK**.
-3. **Put it somewhere permanent**, such as a `Stripes` folder in your Documents. Windows runs the screensaver from wherever the file is, so don't leave it in Downloads if you tidy that folder.
+1. **Download** the zip from the [Releases](https://github.com/gkaramanis/stripes-saver/releases) page: pick the latest `windows-v…` release, then `Stripes-…-windows-x64.zip` for most PCs or `Stripes-…-windows-arm64.zip` for Snapdragon-based PCs. If you're not sure which you have, see Settings → System → About → **System type**.
+2. **Unblock it.** The file isn't code-signed, so Windows treats a download with caution. Before extracting, right-click the zip → **Properties**, tick **Unblock** at the bottom of the General tab (if it's there), and click **OK**.
+3. **Extract `Stripes.scr` somewhere permanent**, such as a `Stripes` folder in your Documents. Windows runs the screensaver from wherever the file is, so don't leave it in Downloads if you tidy that folder.
 4. **Install it.** Right-click `Stripes.scr` and choose **Install**. On Windows 11, choose **Show more options** first. This makes Stripes your screensaver and opens the Screen Saver Settings window.
 
 If Windows shows *"Windows protected your PC"*, click **More info** → **Run anyway**. This appears because the file isn't signed.
