@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Platform logic with no window or GPU dependency: data, timeline and styles. -->
+  <PropertyGroup>
+    <RootNamespace>Stripes</RootNamespace>
+    <IsAotCompatible>true</IsAotCompatible>
+    <!-- LibraryImport generates unsafe marshalling code. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The data shared with macOS, built by data/sample.py. -->
+    <EmbeddedResource Include="..\..\..\data\stripes.json" LogicalName="stripes.json" Link="Data\stripes.json" />
+  </ItemGroup>
+
+</Project>
