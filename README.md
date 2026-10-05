@@ -14,7 +14,7 @@ The bundle includes all 1,069 locations on [showyourstripes.info](https://showyo
 
 [Stripes 1.0](https://github.com/gkaramanis/stripes-saver/releases/download/macos-v1.0/Stripes-1.0.zip) (288 KB). Requires macOS 13 or later, Apple silicon or Intel.
 
-I've tested Stripes on macOS 26 and 27 on Apple silicon. It should work on macOS 13 and later and on Intel Macs. If something doesn't work, email me at [stripes@karaman.is](mailto:stripes@karaman.is) with your macOS version and Mac model.
+I've tested Stripes on macOS 26 and 27 on Apple silicon. It should work on macOS 13 and later and on Intel Macs. If something doesn't work, [open an issue](https://github.com/gkaramanis/stripes-saver/issues) or email me at [stripes@karaman.is](mailto:stripes@karaman.is) with your macOS version and Mac model. Issues with ports to other platforms go to [GitHub issues](https://github.com/gkaramanis/stripes-saver/issues) only, so the person who maintains the port sees them.
 
 1. Unzip and double-click `Stripes.saver`, then choose to install it for this user only.
 2. Select Stripes under System Settings → Wallpaper → Screen Saver… → Custom (macOS 26 and later) or System Settings → Screen Saver (macOS 13 to 15).
