@@ -128,7 +128,7 @@ Each stripe's part of the slat, from `max(left, i·W/n)` to `min(left + W/20, (i
 The label is drawn only if Show location and years is on.
 
 - **Text:** `"<name>  <firstYear>–<year>"`, with two spaces and an en dash.
-- **Year during the build in:** for Sweep, `lead = p·n`. For Rise, Drop and Flip, `lead = p·(n + wave)`. For the other styles, `lead = n`, so they show the last year from the start. The year shown is `firstYear + clamp(ceil(lead), 0, n) − 1`. At exactly `p = 0` that gives `firstYear − 1` for one frame. A port can clamp it to `firstYear`.
+- **Year during the build in:** for Sweep, `lead = p·n`. For Rise, Drop and Flip, `lead = p·(n + wave)`. For the other styles, `lead = n`, so they show the last year from the start. The year shown is `firstYear + max(0, min(n, ceil(lead)) − 1)`, so it never goes below `firstYear`.
 - **Year during the hold and build out:** the last year. During the build out the label fades with opacity `1 − smooth(e)`.
 - **Size:** `max(10, labelSize · viewHeight / screenHeight)`, so the label shrinks in the small preview.
 - **Style:** the chosen font at medium weight, white at 75% opacity, with a black shadow at 50% opacity, blur radius `size/4` and no offset.
