@@ -10,14 +10,16 @@ static class Program
             return 1;
         }
 
-        // The defaults until the options are stored (milestone M4).
-        var settings = new SaverSettings();
-
         try
         {
-            return parsed.Mode == SaverMode.Configure
-                ? SaverHost.ShowOptions(parsed.Window)
-                : SaverHost.Run(parsed, StripesData.LoadEmbedded(), settings);
+            var data = StripesData.LoadEmbedded();
+            if (parsed.Mode == SaverMode.Configure)
+            {
+                if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 14393)) return 1;
+                OptionsDialog.Show(parsed.Window, data);
+                return 0;
+            }
+            return SaverHost.Run(parsed, data, SettingsStore.Load());
         }
         catch (Exception e)
         {

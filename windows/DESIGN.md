@@ -97,11 +97,19 @@ The options use the same keys, defaults and ranges as macOS (SPEC.md → Options
 | `labelSize` | REG_DWORD, points 12–72 | 24 |
 | `locations` | REG_MULTI_SZ | `Global` |
 
-The dialog matches the macOS sheet:
-- Searching matches location and region names, ignoring case and diacritics (`CompareStringEx` with `NORM_IGNORECASE | NORM_IGNORENONSPACE`).
-- A "selected only" filter, plus a count of selected locations. Done stays disabled while none are ticked.
-- `Reset to Defaults…` asks first and leaves Locations alone.
-- It shows the required credit, with both links.
+`SettingsCodec` (Stripes.Core, unit-tested) converts the options to and from these values. Missing or unusable values fall back to the defaults, and numbers are clamped to their ranges, so a hand-edited registry can't break the saver. `SettingsStore` reads and writes the key. `/s` and `/p` read the options when they start, so a change applies the next time the saver runs.
+
+`OptionsDialog` matches the macOS sheet (`macos/OptionsSheet.swift`) control for control:
+- Build In and Build Out dropdowns, a Duration slider ("14 s"), "Show location and years" (which enables Font and Size), a Font dropdown, a Size slider ("24 pt") and `Reset to Defaults…`.
+  - The Font list starts with the system mono font (Cascadia Mono or Consolas) and Segoe UI, then every installed family from DirectWrite in Explorer order.
+- **Locations:** a search box ("Search 1069 locations") over a checkbox list, Global first.
+  - `LocationSearch` matches location and region names, ignoring case and diacritics, with `FindNLSStringEx`. .NET's own culture-aware search doesn't work, because the saver runs in invariant globalization mode.
+- **Credit:** "Warming stripes by Ed Hawkins, University of Reading, under CC BY 4.0. Colors sampled from showyourstripes.info and animated.", with both links (a SysLink control, opened with `ShellExecute`).
+- **Bottom row:** "Selected only", "N selected", Cancel and Done. Done is disabled while no location is ticked and saves the locations in list order. Cancel, Esc and the close box save nothing.
+- **Reset to Defaults:** `Reset to Defaults…` asks first with a task dialog ("Reset" / "Cancel"). It resets everything except Locations and saves nothing until Done.
+- **Window:** a plain Win32 dialog built in code, so it can resize (minimum 420 × 600) and re-lay itself out when it moves to a monitor with a different DPI. It opens centred over Screen Saver Settings at 480 × 640, using Segoe UI from the system's message font.
+
+**Testing the dialog.** UI Automation from Windows PowerShell 5.1 sees Win32 controls only as plain panes, because its client-side proxies don't load, so a script can't tick a list item that way. To test, send `LVM_SETITEMSTATE` with an `LVITEMW` written into the dialog's process (`VirtualAllocEx` / `WriteProcessMemory`). That raises the same `LVN_ITEMCHANGED` as a click. The other controls take ordinary cross-process messages (`WM_SETTEXT`, `BM_CLICK`, `TBM_SETPOS`, `TDM_CLICK_BUTTON`).
 
 ## Testing
 
@@ -148,7 +156,7 @@ Releases are tagged `windows-vX.Y`.
 | M1 | Solution, data reader, names, ordering, tests | Done |
 | M2 | `/s` `/p` host, monitor windows, 30 fps timeline, Direct2D renderer, **all nine styles and Random** (ported with the draw list, since it needs every primitive anyway), resources. Checked: Vortice under AOT, the preview child window, resources in the AOT exe, and a pixel-exact match of the finished stripes | Done |
 | M3 | The label (DirectWrite, shadow, corners, year during the build, fade-out), the render tool and the comparison script. All nine styles rendered and reviewed by eye | Done, apart from the comparison against macOS frames, which is waiting on reference frames |
-| M4 | Options dialog and registry storage | |
+| M4 | Options dialog and registry storage. Checked under Native AOT: search, ticking, Selected only, Reset to Defaults, Cancel, Done, reopening with the saved values, and the saver playing the saved locations | Done |
 | M5 | Reference-frame comparison, CI (x64 + Arm64), `windows-v1.0` release | |
 
 ## Open questions

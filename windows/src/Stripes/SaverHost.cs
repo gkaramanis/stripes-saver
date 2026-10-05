@@ -71,17 +71,6 @@ static unsafe class SaverHost
         }
     }
 
-    // Placeholder until the options dialog arrives (milestone M4).
-    public static int ShowOptions(nint owner)
-    {
-        fixed (char* text = "Stripes has no options yet. They arrive in a later build.")
-        fixed (char* caption = "Stripes")
-        {
-            PInvoke.MessageBox((HWND)owner, text, caption, MESSAGEBOX_STYLE.MB_OK | MESSAGEBOX_STYLE.MB_ICONINFORMATION);
-        }
-        return 0;
-    }
-
     static void RegisterWindowClass(HINSTANCE instance)
     {
         fixed (char* name = ClassName)
