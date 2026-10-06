@@ -162,7 +162,6 @@ Releases are tagged `windows-vX.Y`.
 
 ## Open questions
 
-- **LICENSE.** Georgios is working on the copyright wording for the Windows code. The LICENSE's data path should read `data/stripes.json`.
 - **Display changes.** Like many savers, `/s` currently ends when the display configuration changes (a monitor plugged in or out). Rebuilding the windows instead is possible if wanted.
 - **First label corner.** On macOS, `apply()` and `startAnimation()` both call `show()`, so the first location's label appears top-right, not bottom-left as SPEC.md's order suggests. The Windows port copies this (`Timeline` starts the corner at 1). Whether macOS means to do this is not yet decided.
 - **Reference frames.** Frames from `macos/tools/render` committed to the repo would let the styles be checked against macOS. Frames with the label on would also check the shadow blur, where NSShadow's radius is mapped by eye to a Gaussian standard deviation of radius / 2.
