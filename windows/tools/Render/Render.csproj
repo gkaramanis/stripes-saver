@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Renders a style's frames to PNG, like macos/tools/render, for comparing the ports. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>render</AssemblyName>
+    <RootNamespace>Stripes</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Stripes.Core\Stripes.Core.csproj" />
+    <PackageReference Include="Vortice.Direct2D1" Version="3.8.3" />
+    <!-- The saver's own Direct2D drawing, so frames come from the same code. -->
+    <Compile Include="..\..\src\Stripes\DrawListPainter.cs" Link="DrawListPainter.cs" />
+  </ItemGroup>
+
+</Project>

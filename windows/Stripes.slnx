@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Stripes.Core/Stripes.Core.csproj" />
+    <Project Path="src/Stripes/Stripes.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Stripes.Core.Tests/Stripes.Core.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/Render/Render.csproj" />
+  </Folder>
+</Solution>

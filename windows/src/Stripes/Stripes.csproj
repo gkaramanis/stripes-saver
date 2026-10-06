@@ -1,0 +1,61 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <AssemblyName>Stripes</AssemblyName>
+    <RootNamespace>Stripes</RootNamespace>
+    <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
+    <PublishAot>true</PublishAot>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <!-- SharpGen.Runtime (under Vortice) warns about a reflection fallback that only runs when
+         managed code implements a COM callback. Stripes only calls Direct2D, so the warning
+         stays visible but doesn't fail the build. -->
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);IL2104</WarningsNotAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Stripes.Core\Stripes.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.346">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Vortice.Direct2D1" Version="3.8.3" />
+  </ItemGroup>
+
+  <!-- Native resources: the name Screen Saver Settings shows, the icon, the manifest and version
+       info. Compiled with rc.exe from the Windows SDK, which the MSVC build tools install. -->
+  <PropertyGroup>
+    <Win32Resource>$(BaseIntermediateOutputPath)Stripes.res</Win32Resource>
+  </PropertyGroup>
+
+  <Target Name="CompileNativeResources" BeforeTargets="CoreCompile"
+          Inputs="Stripes.rc;app.manifest;Stripes.ico;$(MSBuildProjectFullPath);$(MSBuildThisFileDirectory)..\..\Directory.Build.props"
+          Outputs="$(Win32Resource)">
+    <PropertyGroup>
+      <WindowsKitsRoot>$([MSBuild]::GetRegistryValueFromView('HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Kits\Installed Roots', 'KitsRoot10', null, RegistryView.Registry32))</WindowsKitsRoot>
+    </PropertyGroup>
+    <ItemGroup>
+      <RcExe Include="$(WindowsKitsRoot)bin\10.*\x64\rc.exe" />
+      <VersionLine Include="#define STRIPES_VERSION $(Version.Replace('.', ',')),0" />
+      <VersionLine Include="#define STRIPES_VERSION_TEXT &quot;$(Version)&quot;" />
+      <VersionLine Include="#define STRIPES_COPYRIGHT &quot;$(Copyright)&quot;" />
+    </ItemGroup>
+    <PropertyGroup>
+      <!-- The last match is the newest SDK. -->
+      <RcExePath>%(RcExe.FullPath)</RcExePath>
+    </PropertyGroup>
+    <Error Condition="'$(RcExePath)' == ''" Text="rc.exe not found. Install the Windows SDK (see windows/DESIGN.md, Building)." />
+    <WriteLinesToFile File="$(BaseIntermediateOutputPath)version.h" Lines="@(VersionLine)" Overwrite="true" WriteOnlyWhenDifferent="true" />
+    <Exec Command="&quot;$(RcExePath)&quot; /nologo /i &quot;$(BaseIntermediateOutputPath.TrimEnd('\'))&quot; /fo &quot;$(Win32Resource)&quot; Stripes.rc"
+          WorkingDirectory="$(MSBuildProjectDirectory)" />
+  </Target>
+
+  <!-- Windows recognises a screen saver by its .scr extension; the file is otherwise an ordinary exe. -->
+  <Target Name="CopyToScr" AfterTargets="Publish">
+    <Copy SourceFiles="$(PublishDir)$(AssemblyName).exe" DestinationFiles="$(PublishDir)$(AssemblyName).scr" />
+  </Target>
+
+</Project>
