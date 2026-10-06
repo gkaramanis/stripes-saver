@@ -114,7 +114,7 @@ The options use the same keys and ranges as macOS (SPEC.md → Options), and the
 ## Testing
 
 - **Unit tests** (`tests/`): data loading and validation, names, ordering, and the fallback to Global. As styles land, tests cover their helpers (`smooth`, `waveAt`, `dropFall`, the Blinds projection) and the draw lists at chosen progress values.
-- **Against macOS:** frames from `macos/tools/render` (Global, label off) are the reference. `tools/Render` renders the same frames on Windows, with the same arguments, timing and file names, through the saver's own drawing code, plus `--seed n` to fix Scatter's and Mosaic's orders. `tools/compare.py <mac-dir> <windows-dir>` reports the share of pixels that differ beyond a small tolerance. **Georgios reviewed the Windows styles and agreed they are correct (2026-10-05), so a frame-by-frame comparison isn't needed for v1.0.** The tools stay for checking future changes. Note that the macOS tool shuffles without a seed, so Scatter and Mosaic can only match in their first and last frames.
+- **Against macOS:** frames from `macos/tools/render` (Global, label off) are the reference. `tools/Render` renders the same frames on Windows, with the same arguments, timing and file names, through the saver's own drawing code, plus `--seed n` to fix Scatter's and Mosaic's orders. `tools/compare.py <mac-dir> <windows-dir>` reports the share of pixels that differ beyond a small tolerance. The Windows styles have been reviewed by eye but not yet compared with macOS frames, which needs reference frames committed from a Mac. Note that the macOS tool shuffles without a seed, so Scatter and Mosaic can only match in their first and last frames.
 
 ```powershell
 dotnet run --project tools\Render -- blinds frames\blinds --seed 1     # 960x540, 30 fps, 3 s build
@@ -155,7 +155,7 @@ Releases are tagged `windows-vX.Y`.
 |---|---|---|
 | M1 | Solution, data reader, names, ordering, tests | Done |
 | M2 | `/s` `/p` host, monitor windows, 30 fps timeline, Direct2D renderer, **all nine styles and Random** (ported with the draw list, since it needs every primitive anyway), resources. Checked: Vortice under AOT, the preview child window, resources in the AOT exe, and a pixel-exact match of the finished stripes | Done |
-| M3 | The label (DirectWrite, shadow, corners, year during the build, fade-out), the render tool and the comparison script. All nine styles rendered, reviewed by eye, and confirmed correct by Georgios | Done |
+| M3 | The label (DirectWrite, shadow, corners, year during the build, fade-out), the render tool and the comparison script. All nine styles rendered and reviewed by eye on Windows | Done, apart from the comparison against macOS frames |
 | M4 | Options dialog and registry storage. Checked under Native AOT: search, ticking, Selected only, Reset to Defaults, Cancel, Done, reopening with the saved values, and the saver playing the saved locations | Done |
 | M5 | `windows-v1.0` release (pull request #1, then a tag on `main` with the x64 and Arm64 zips) | Waiting for the merge |
 | Later | GitHub Actions: build and test on every pull request, and build the release zips | Deferred |
@@ -164,8 +164,5 @@ Releases are tagged `windows-vX.Y`.
 
 - **LICENSE.** Georgios is working on the copyright wording for the Windows code. The LICENSE's data path should read `data/stripes.json`.
 - **Display changes.** Like many savers, `/s` currently ends when the display configuration changes (a monitor plugged in or out). Rebuilding the windows instead is possible if wanted.
-
-## Settled with Georgios (2026-10-05)
-
-- **First label corner.** On macOS, `apply()` and `startAnimation()` both call `show()`, so the first location's label appears top-right. This is intended, and the Windows port does the same (`Timeline` starts the corner at 1).
-- **Reference frames** aren't needed: the Windows styles are agreed to be correct. The label's shadow blur (NSShadow radius mapped to a Gaussian standard deviation of radius / 2) is accepted as it looks.
+- **First label corner.** On macOS, `apply()` and `startAnimation()` both call `show()`, so the first location's label appears top-right, not bottom-left as SPEC.md's order suggests. The Windows port copies this (`Timeline` starts the corner at 1). Whether macOS means to do this is not yet decided.
+- **Reference frames.** Frames from `macos/tools/render` committed to the repo would let the styles be checked against macOS. Frames with the label on would also check the shadow blur, where NSShadow's radius is mapped by eye to a Gaussian standard deviation of radius / 2.
