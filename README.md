@@ -1,6 +1,8 @@
-# Warming stripes screensaver for macOS
+# Warming stripes screensaver for macOS and Windows
 
 **[Download Stripes 1.0](https://github.com/gkaramanis/stripes-saver/releases/download/macos-v1.0/Stripes-1.0.zip)** (288 KB, macOS 13 or later). Install steps are under [Download](#download).
+
+A Windows version by Carey Blunt is in [`windows/`](windows/README.md), with its own install steps.
 
 *Note:* On macOS 26 and later, the `Options…` button can stop responding after the screensaver has run. It's a macOS bug that affects other third-party screensavers too. Quit and reopen System Settings, and `Options…` works again.
 
@@ -47,6 +49,7 @@ The stripes are free to use. Show Your Stripes also accepts [donations](https://
 |---|---|
 | `data/` | `stripes.json`, shared by every platform, and `sample.py`, which builds it |
 | `macos/` | The macOS screensaver |
+| `windows/` | The Windows screensaver, by Carey Blunt. See its [README](windows/README.md) |
 
 [SPEC.md](SPEC.md) describes the options, the data and every style in detail, for ports to other platforms. A port goes in its own folder, such as `windows/`, reads `data/stripes.json`, and is released under its own tag, such as `windows-v1.0`. Send changes as pull requests.
 
@@ -60,6 +63,8 @@ python3 macos/thumbnail.py # redraw the System Settings thumbnails from the data
 ```
 
 The build is universal (Apple silicon and Intel). `build.sh` uses a full Xcode when one is installed, because the Command Line Tools lack the Intel slice of a Swift support library. `sample.py` caches the images in `data/cache/` (about 35 MB). Delete it to pick up a new year of data.
+
+The Windows build is described in [windows/DESIGN.md](windows/DESIGN.md#building).
 
 ## License
 
