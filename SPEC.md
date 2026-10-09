@@ -97,6 +97,8 @@ waveAt(i) = clamp((p·(n + wave) − i) / wave)   // stripe i's progress through
 
 **warmOrder** ranks each year by its colour in this order, coldest first: `001944`, `08306b`, `08519c`, `2171b5`, `4292c6`, `6baed6`, `9ecae1`, `c6dbef`, `deebf7`, `7f7f7f`, `fee0d2`, `fcbba1`, `fc9272`, `fb6a4a`, `ef3b2c`, `cb181d`, `a50f15`, `67000d`, `440007`. Grey, the colour for missing data, sits in the middle, and so would a colour missing from the list. Years of the same colour rank left to right.
 
+The 16 middle colours are ColorBrewer's 9-class Blues and Reds without their palest shade. Hawkins confirmed this in a reply to Maximilian Linhoff (@maxnoethe) on X on 24 September 2019 ("I had removed the really pale colours from the 9 reds/blues option"); see also the [Scientific Python blog](https://blog.scientific-python.org/matplotlib/warming-stripes/). `440007` is the darker red added after 2023 ([BBC, 5 January 2024](https://www.bbc.com/news/articles/c72yrd8y9pwo)). No source found yet for `001944`.
+
 **dropFall(t)** is a fall under gravity followed by two small bounces, with heights 0.06 and 0.015 of the screen:
 
 ```
