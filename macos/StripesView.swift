@@ -55,6 +55,7 @@ final class StripesView: ScreenSaverView {
 
     // The rank at which each year, or each mosaic tile, appears and is later erased.
     private var order: [Int] = []
+    private var warmOrder: [Int] = []
     private var tileOrder: [Int] = []
     private let mosaicRows = 12
     private let blindSlats = 20
@@ -104,6 +105,7 @@ final class StripesView: ScreenSaverView {
         drewStill = false
         let n = locations.isEmpty ? 0 : locations[index].stripes.count
         order = Array(0..<n).shuffled()
+        warmOrder = warmthRanks(locations.isEmpty ? [] : locations[index].stripes)
         tileOrder = Array(0..<(n * mosaicRows)).shuffled()
         styleIn = decks.in.next(chosenIn)
         styleOut = decks.out.next(chosenOut)
@@ -216,6 +218,8 @@ final class StripesView: ScreenSaverView {
                 fill(NSRect(x: x0, y: 0, width: x1 - x0, height: (h * smooth(waveAt(x))).rounded()), color, alpha: 1)
             case .scatter:
                 fill(full, color, alpha: clamp((p * (n + wave) - Double(order[i])) / wave))
+            case .warming:
+                fill(full, color, alpha: clamp((p * (n + wave) - Double(warmOrder[i])) / wave))
             case .fade:
                 fill(full, color, alpha: smooth(p))
             case .iris:
@@ -248,6 +252,18 @@ final class StripesView: ScreenSaverView {
         if style == .iris {
             NSGraphicsContext.restoreGraphicsState()
         }
+    }
+
+    // Each year's rank from coldest to warmest; years of the same colour go left to right.
+    private func warmthRanks(_ stripes: [UInt8]) -> [Int] {
+        let warmth = Locations.warmth
+        let sorted = stripes.indices.sorted { a, b in
+            let wa = warmth[Int(stripes[a])], wb = warmth[Int(stripes[b])]
+            return wa != wb ? wa < wb : a < b
+        }
+        var rank = [Int](repeating: 0, count: stripes.count)
+        for (r, i) in sorted.enumerated() { rank[i] = r }
+        return rank
     }
 
     private func fill(_ rect: NSRect, _ color: NSColor, alpha: Double) {

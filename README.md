@@ -8,7 +8,7 @@ A Windows version by Carey Blunt is in [`windows/`](windows/README.md), with its
 
 <img src="images/hero.jpg" alt="A MacBook Pro on a desk in an office, its screen showing the warming stripes for Sweden, 1850 to 2025. Behind it, a window fills the whole wall, with autumn trees in yellow and orange outside." width="800">
 
-Stripes.saver is a macOS screensaver that draws the warming stripes. The default style builds them one year at a time, from left to right, and there are eight other [styles](#styles). It holds the finished picture for 15 seconds, erases it, and starts again with the next location.
+Stripes.saver is a macOS screensaver that draws the warming stripes. The default style builds them one year at a time, from left to right, and there are nine other [styles](#styles). It holds the finished picture for 15 seconds, erases it, and starts again with the next location.
 
 The bundle includes all 1,069 locations on [showyourstripes.info](https://showyourstripes.info). It shows Global by default. Under `Options…` you can switch to any other location or tick several, and the saver cycles through them in list order, Global first and the rest alphabetically.
 
@@ -27,13 +27,13 @@ System Settings shows a thumbnail of the stripes. If you installed Stripes befor
 
 ## Options
 
-`Options…` sets the build-in style, the build-out style, the duration of each (5 to 60 seconds), whether to show the location and years, the label's font and size (SF Mono at 24 points by default), and which locations to cycle through. `Reset to Defaults…` puts the drawing options back and leaves the locations alone. Each build-out style erases with the motion it builds with. Sweep, for example, blacks out the stripes from left to right. By default the stripes sweep in and fade out. Random deals a new style for each cycle and uses all nine before repeating one.
+`Options…` sets the build-in style, the build-out style, the duration of each (5 to 60 seconds), whether to show the location and years, the label's font and size (SF Mono at 24 points by default), and which locations to cycle through. `Reset to Defaults…` puts the drawing options back and leaves the locations alone. Each build-out style erases with the motion it builds with. Sweep, for example, blacks out the stripes from left to right. By default the stripes sweep in and fade out. Random deals a new style for each cycle and uses all ten before repeating one.
 
 <img src="images/options.png" alt="The Stripes options sheet in System Settings. Build In is set to Scatter, Build Out to Blinds and Duration to 20 seconds, with Show location and years ticked, the font SF Mono at 24 points, and a Reset to Defaults button. Below is a searchable list of 1,069 locations with Global ticked, and the credit to Ed Hawkins under CC BY 4.0." width="484">
 
 ## Styles
 
-Sweep (the default), Rise, Scatter, Fade, Drop, Flip, Blinds, Iris and Mosaic. The [blog post](https://karaman.is/blog/2026/10/stripes-screensaver#styles) has a clip of each, building the global series in real time at the default 14 seconds.
+Sweep (the default), Rise, Scatter, Fade, Drop, Flip, Blinds, Iris, Mosaic and Warming, which builds the stripes from the coldest year to the warmest. The [blog post](https://karaman.is/blog/2026/10/stripes-screensaver#styles) has a clip of each, building the global series in real time at the default 14 seconds.
 
 ## Data and credit
 

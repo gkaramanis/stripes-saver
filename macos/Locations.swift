@@ -28,15 +28,18 @@ enum Locations {
     private static let loaded = load()
     static var palette: [NSColor] { loaded.palette }
 
+    // Each palette colour's place from coldest to warmest, for the Warming style.
+    static var warmth: [Int] { loaded.warmth }
+
     // Global first, then alphabetical by name.
     static var all: [Location] { loaded.all }
 
-    private static func load() -> (palette: [NSColor], all: [Location]) {
+    private static func load() -> (palette: [NSColor], warmth: [Int], all: [Location]) {
         guard
             let url = Bundle(for: StripesView.self).url(forResource: "stripes", withExtension: "json"),
             let data = try? Data(contentsOf: url),
             let file = try? JSONDecoder().decode(StripesFile.self, from: data)
-        else { return ([], []) }
+        else { return ([], [], []) }
 
         let list = file.locations.map { e -> Location in
             let name = e.country.isEmpty ? e.region : e.place.isEmpty ? e.country : "\(e.place), \(e.country)"
@@ -47,8 +50,17 @@ enum Locations {
             if (a.name == "Global") != (b.name == "Global") { return a.name == "Global" }
             return a.name.localizedStandardCompare(b.name) == .orderedAscending
         }
-        return (file.palette.map(color(hex:)), sorted)
+        let warmth = file.palette.map { coldToWarm.firstIndex(of: $0) ?? coldToWarm.count / 2 }
+        return (file.palette.map(color(hex:)), warmth, sorted)
     }
+
+    // The official colours from coldest to warmest. Grey marks a year without data
+    // and sits in the middle, with any colour missing from this list.
+    private static let coldToWarm = [
+        "001944", "08306b", "08519c", "2171b5", "4292c6", "6baed6", "9ecae1", "c6dbef", "deebf7",
+        "7f7f7f",
+        "fee0d2", "fcbba1", "fc9272", "fb6a4a", "ef3b2c", "cb181d", "a50f15", "67000d", "440007",
+    ]
 
     private static func color(hex: String) -> NSColor {
         let v = UInt32(hex, radix: 16) ?? 0

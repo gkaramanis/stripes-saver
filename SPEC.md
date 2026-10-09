@@ -8,7 +8,7 @@ Coordinates follow AppKit, with the origin at the bottom-left and y pointing up.
 
 | Option | Key | Type | Default | Range or values |
 |---|---|---|---|---|
-| Build In | `style` | style name | `sweep` | `sweep`, `rise`, `scatter`, `fade`, `drop`, `flip`, `blinds`, `iris`, `mosaic`, `random` |
+| Build In | `style` | style name | `sweep` | `sweep`, `rise`, `scatter`, `fade`, `drop`, `flip`, `blinds`, `iris`, `mosaic`, `warming`, `random` |
 | Build Out | `exitStyle` | style name | `fade` | same as Build In |
 | Duration | `drawIn` | seconds | 14 | 5 to 60, whole seconds |
 | Show location and years | `showLabel` | bool | true | |
@@ -58,8 +58,8 @@ The saver redraws at 30 fps and skips redraws during the hold, because nothing m
 
 These things are set when each location starts (`show`, line 101):
 
-- A random permutation of the years, `order`, for Scatter. A random permutation of the `years × 12` tiles, `tileOrder`, for Mosaic. The build out reuses both, so it erases in the order it built.
-- The styles for this cycle. A style other than Random is used as is. Random draws from a shuffled bag of all nine styles, and when the bag empties it refills, swapping so the new first draw differs from the last one. Build In and Build Out each have their own bag, and both reset whenever the options change.
+- A random permutation of the years, `order`, for Scatter. A random permutation of the `years × 12` tiles, `tileOrder`, for Mosaic. The years ranked from coldest to warmest, `warmOrder`, for Warming. The build out reuses both, so it erases in the order it built.
+- The styles for this cycle. A style other than Random is used as is. Random draws from a shuffled bag of all ten styles, and when the bag empties it refills, swapping so the new first draw differs from the last one. Build In and Build Out each have their own bag, and both reset whenever the options change.
 - The label corner moves one step clockwise (see Label).
 
 ## Drawing
@@ -92,7 +92,10 @@ waveAt(i) = clamp((p·(n + wave) − i) / wave)   // stripe i's progress through
 | Flip | With `q = smooth(waveAt(i))`, a rectangle of width `(x1 − x0)·q`, centred on the stripe, full height. Its colour is mixed with black by `0.6·(1 − q)`, so it is darker while edge-on. |
 | Iris | Every stripe at alpha 1 once `p > 0`, clipped to a circle at the view's centre with radius `smooth(p) · √(W² + H²) / 2`. |
 | Mosaic | The stripe is cut into 12 tiles from bottom to top, with tile edges at `round(row·H/12)`. With `cells = n·12` and `rank = tileOrder[i·12 + row]`, each tile has alpha `clamp((p·cells·1.05 − rank) / (cells/20))`. |
+| Warming | Full stripe at alpha `clamp((p·(n + wave) − warmOrder[i]) / wave)`. Like Scatter, but the coldest year appears first and the warmest last. |
 | Blinds | See below. |
+
+**warmOrder** ranks each year by its colour in this order, coldest first: `001944`, `08306b`, `08519c`, `2171b5`, `4292c6`, `6baed6`, `9ecae1`, `c6dbef`, `deebf7`, `7f7f7f`, `fee0d2`, `fcbba1`, `fc9272`, `fb6a4a`, `ef3b2c`, `cb181d`, `a50f15`, `67000d`, `440007`. Grey, the colour for missing data, sits in the middle, and so would a colour missing from the list. Years of the same colour rank left to right.
 
 **dropFall(t)** is a fall under gravity followed by two small bounces, with heights 0.06 and 0.015 of the screen:
 

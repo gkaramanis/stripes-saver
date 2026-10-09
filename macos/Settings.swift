@@ -5,7 +5,7 @@ import ScreenSaver
 let log = Logger(subsystem: "is.karaman.stripes-saver", category: "saver")
 
 enum DrawStyle: String, CaseIterable {
-    case sweep, rise, scatter, fade, drop, flip, blinds, iris, mosaic, random
+    case sweep, rise, scatter, fade, drop, flip, blinds, iris, mosaic, warming, random
 
     // Every style that draws, which is all but random.
     static var animated: [DrawStyle] { allCases.filter { $0 != .random } }
@@ -21,6 +21,7 @@ enum DrawStyle: String, CaseIterable {
         case .blinds: "Blinds"
         case .iris: "Iris"
         case .mosaic: "Mosaic"
+        case .warming: "Warming"
         case .random: "Random"
         }
     }
