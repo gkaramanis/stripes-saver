@@ -58,7 +58,7 @@ The saver redraws at 30 fps and skips redraws during the hold, because nothing m
 
 These things are set when each location starts (`show`, line 101):
 
-- A random permutation of the years, `order`, for Scatter. A random permutation of the `years × 12` tiles, `tileOrder`, for Mosaic. The years ranked from coldest to warmest, `warmOrder`, for Warming. The build out reuses both, so it erases in the order it built.
+- A random permutation of the years, `order`, for Scatter. A random permutation of the `years × 12` tiles, `tileOrder`, for Mosaic. The years ranked from coldest to warmest, `warmOrder`, for Warming. The build out reuses all three, so it erases in the order it built.
 - The styles for this cycle. A style other than Random is used as is. Random draws from a shuffled bag of all ten styles, and when the bag empties it refills, swapping so the new first draw differs from the last one. Build In and Build Out each have their own bag, and both reset whenever the options change.
 - The label corner moves one step clockwise (see Label).
 
