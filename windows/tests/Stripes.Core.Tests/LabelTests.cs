@@ -5,7 +5,7 @@ public class LabelTests
     static readonly Location Global = StripesData.LoadEmbedded().Global;  // 1850–2025, n = 176
 
     static FrameState Frame(DrawStyle styleIn, double p, bool building = true, double e = 0, int corner = 2) =>
-        new(Global, building, p, e, styleIn, DrawStyle.Fade, [], [], corner);
+        new(Global, building, p, e, styleIn, DrawStyle.Fade, [], [], [], corner);
 
     [Fact]
     public void Text_has_two_spaces_and_an_en_dash() =>
@@ -35,6 +35,7 @@ public class LabelTests
     [InlineData(DrawStyle.Blinds)]
     [InlineData(DrawStyle.Iris)]
     [InlineData(DrawStyle.Mosaic)]
+    [InlineData(DrawStyle.Warming)]
     public void Other_styles_show_the_last_year_from_the_start(DrawStyle style) =>
         Assert.Equal(2025, Label.For(Frame(style, 0)).Year);
 

@@ -39,6 +39,33 @@ public sealed class StripesData
 
     public Location? Find(string name) => byName.GetValueOrDefault(name);
 
+    // The official colours from coldest to warmest, for the Warming style. Grey marks a year
+    // without data and sits in the middle, with any colour missing from this list.
+    static readonly Rgb[] ColdToWarm = new[]
+    {
+        "001944", "08306b", "08519c", "2171b5", "4292c6", "6baed6", "9ecae1", "c6dbef", "deebf7",
+        "7f7f7f",
+        "fee0d2", "fcbba1", "fc9272", "fb6a4a", "ef3b2c", "cb181d", "a50f15", "67000d", "440007",
+    }.Select(Rgb.Parse).ToArray();
+
+    // A colour's place from coldest to warmest. Like Locations.warmth in macos/Locations.swift.
+    public static int Warmth(Rgb colour)
+    {
+        var i = Array.IndexOf(ColdToWarm, colour);
+        return i >= 0 ? i : ColdToWarm.Length / 2;
+    }
+
+    // Each year's rank from coldest to warmest; years of the same colour go left to right.
+    // A port of warmthRanks() in macos/StripesView.swift.
+    public static int[] WarmthRanks(Location location)
+    {
+        var colours = location.Colours;
+        var sorted = Enumerable.Range(0, colours.Count).OrderBy(i => Warmth(colours[i])).ThenBy(i => i).ToArray();
+        var rank = new int[sorted.Length];
+        for (var r = 0; r < sorted.Length; r++) rank[sorted[r]] = r;
+        return rank;
+    }
+
     // The saved Locations option, as the locations to play: the ones that still exist, in
     // display order. Falls back to Global if none do.
     public IReadOnlyList<Location> Resolve(IEnumerable<string> names)

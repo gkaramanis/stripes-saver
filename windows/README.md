@@ -1,6 +1,6 @@
 # Stripes for Windows (c) C.T.Blunt
 
-The Windows port of the original MacOS Stripes screensaver. It draws the warming stripes for any of the 1,069 locations in `data/stripes.json`, with the same nine styles and options as the macOS version.
+The Windows port of the original MacOS Stripes screensaver. It draws the warming stripes for any of the 1,069 locations in `data/stripes.json`, with the same ten styles and options as the macOS version.
 
 ## Install
 
