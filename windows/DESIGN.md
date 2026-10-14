@@ -4,7 +4,7 @@ This describes how the Windows port is built. **What it draws, and when, is defi
 
 ## Goals
 
-- Behave exactly like the macOS saver: the same nine styles, options, defaults, timing, label and data.
+- Behave exactly like the macOS saver: the same ten styles, options, defaults, timing, label and data.
 - A single small native `Stripes.scr` with no runtime to install, for x64 and Arm64 Windows 10/11.
 - Fully offline. The data is embedded at build time.
 - Follow the Windows screen saver conventions: full screen on every monitor, the small preview in Screen Saver Settings, and the options dialog.
@@ -77,6 +77,7 @@ Each style is a **line-for-line port of its formulas in SPEC.md**, computed on t
 - **Coordinates:** SPEC.md uses AppKit coordinates (origin bottom-left, y up). Direct2D's y points down, so one helper flips the vertical positions for Rise, Drop, Mosaic rows and the label corners.
 - **Timing:** 30 fps, with no redraws during the 15-second hold. The message loop sleeps in `MsgWaitForMultipleObjectsEx` until the next frame is due (with a 1 ms timer resolution while running), so input stays responsive and the CPU stays idle between frames. The render targets present immediately rather than each waiting for vsync, so several monitors don't hold each other up.
 - **Native AOT and Vortice:** Vortice's `SharpGen.Runtime` reports trim warnings (IL2104) about a reflection fallback that only runs when managed code *implements* a COM interface (e.g. a custom text renderer). Stripes only *calls* Direct2D, and the AOT build is verified to draw correctly. The warning stays visible but doesn't fail the build. If a later feature needs a COM callback, switch that part to CsWin32's COM interop instead.
+- **Warming** (added in macOS 1.1) ranks the years by colour, not at random: `StripesData.WarmthRanks` sorts them by each colour's place in SPEC.md's coldest-to-warmest list, matched by value, so the palette's order in the file doesn't matter. Grey and any unlisted colour rank in the middle, and ties go left to right.
 - **Monitors:** as on macOS, each monitor runs its own independent timeline. All start at the first chosen location, and each has its own Random bags, Scatter/Mosaic orders and label corner.
 - **Label fonts:** `systemMono` → Cascadia Mono (falling back to Consolas), and `system` → Segoe UI. Any other value is an installed family name, falling back to the mono font if it isn't installed.
 - **Label:** `Label` in Stripes.Core works out the text, year, opacity and corner (unit-tested). `LabelPainter` draws it with DirectWrite at medium weight, with grayscale antialiasing.
@@ -85,7 +86,7 @@ Each style is a **line-for-line port of its formulas in SPEC.md**, computed on t
 
 ## Options
 
-The options use the same keys and ranges as macOS (SPEC.md → Options), and the same defaults except one: **Build In and Build Out default to Random on Windows** (macOS: Sweep and Fade). Carey chose this on 2026-10-05 so a new install shows off all nine styles; Reset to Defaults goes back to Random too. The options are stored in `HKCU\Software\Stripes`:
+The options use the same keys and ranges as macOS (SPEC.md → Options), and the same defaults except one: **Build In and Build Out default to Random on Windows** (macOS: Sweep and Fade). Carey chose this on 2026-10-05 so a new install shows off all ten styles; Reset to Defaults goes back to Random too. The options are stored in `HKCU\Software\Stripes`:
 
 | Key | Type | Default |
 |---|---|---|
@@ -157,7 +158,8 @@ Releases are tagged `windows-vX.Y`.
 | M2 | `/s` `/p` host, monitor windows, 30 fps timeline, Direct2D renderer, **all nine styles and Random** (ported with the draw list, since it needs every primitive anyway), resources. Checked: Vortice under AOT, the preview child window, resources in the AOT exe, and a pixel-exact match of the finished stripes | Done |
 | M3 | The label (DirectWrite, shadow, corners, year during the build, fade-out), the render tool and the comparison script. All nine styles rendered and reviewed by eye on Windows | Done, apart from the comparison against macOS frames |
 | M4 | Options dialog and registry storage. Checked under Native AOT: search, ticking, Selected only, Reset to Defaults, Cancel, Done, reopening with the saved values, and the saver playing the saved locations | Done |
-| M5 | `windows-v1.0` release (pull request #1, then a tag on `main` with the x64 and Arm64 zips) | Waiting for the merge |
+| M5 | `windows-v1.0` release (pull request #1, then a tag on `main` with the x64 and Arm64 zips) | Done |
+| M6 | `windows-v1.1`: the Warming style from macOS 1.1, with tests | In progress |
 | Later | GitHub Actions: build and test on every pull request, and build the release zips | Deferred |
 
 ## Open questions

@@ -10,6 +10,7 @@ public sealed record FrameState(
     DrawStyle StyleOut,
     int[] Order,
     int[] TileOrder,
+    int[] WarmOrder,
     int Corner);
 
 // Steps through the chosen locations: build in, a 15-second hold, build out, then the next
@@ -28,7 +29,7 @@ public sealed class Timeline
     int index;
     double start;
     bool drewStill;
-    int[] order = [], tileOrder = [];
+    int[] order = [], tileOrder = [], warmOrder = [];
     DrawStyle styleIn, styleOut;
 
     // Which corner holds the label: 0 bottom-left, then clockwise, one step per location.
@@ -77,6 +78,7 @@ public sealed class Timeline
             styleOut,
             order,
             tileOrder,
+            warmOrder,
             corner);
     }
 
@@ -88,6 +90,7 @@ public sealed class Timeline
         var n = locations[index].YearCount;
         order = Permutation(n);
         tileOrder = Permutation(n * MosaicRows);
+        warmOrder = StripesData.WarmthRanks(locations[index]);
         styleIn = deckIn.Next(chosenIn, random);
         styleOut = deckOut.Next(chosenOut, random);
         corner = (corner + 1) % 4;

@@ -11,18 +11,18 @@ public static class Painter
         list.Reset(width, height);
         if (f.Building)
         {
-            Paint(list, f.Location, f.StyleIn, f.P, erase: false, f.Order, f.TileOrder);
+            Paint(list, f.Location, f.StyleIn, f.P, erase: false, f.Order, f.TileOrder, f.WarmOrder);
         }
         else
         {
             // The build out replays its style in black over the finished picture.
-            Paint(list, f.Location, DrawStyle.Fade, 1, erase: false, f.Order, f.TileOrder);
-            Paint(list, f.Location, f.StyleOut, f.E, erase: true, f.Order, f.TileOrder);
+            Paint(list, f.Location, DrawStyle.Fade, 1, erase: false, f.Order, f.TileOrder, f.WarmOrder);
+            Paint(list, f.Location, f.StyleOut, f.E, erase: true, f.Order, f.TileOrder, f.WarmOrder);
         }
     }
 
     // Draws a location at progress p through a style. When erasing, the same motion paints black.
-    public static void Paint(DrawList list, Location loc, DrawStyle style, double p, bool erase, int[] order, int[] tileOrder)
+    public static void Paint(DrawList list, Location loc, DrawStyle style, double p, bool erase, int[] order, int[] tileOrder, int[] warmOrder)
     {
         var n = (double)loc.YearCount;
         var h = list.Height;
@@ -64,6 +64,10 @@ public static class Painter
                     break;
                 case DrawStyle.Scatter:
                     list.FillRect(x0, 0, x1 - x0, h, colour, Clamp((p * (n + wave) - order[i]) / wave));
+                    break;
+                case DrawStyle.Warming:
+                    // Like Scatter, but from the coldest year to the warmest.
+                    list.FillRect(x0, 0, x1 - x0, h, colour, Clamp((p * (n + wave) - warmOrder[i]) / wave));
                     break;
                 case DrawStyle.Fade:
                     list.FillRect(x0, 0, x1 - x0, h, colour, Smooth(p));

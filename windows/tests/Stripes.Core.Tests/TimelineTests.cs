@@ -20,10 +20,12 @@ public class TimelineTests
     {
         var deck = new StyleDeck();
         var random = new Random(7);
-        var dealt = Enumerable.Range(0, 9 * 50).Select(_ => deck.Next(DrawStyle.Random, random)).ToList();
+        var styles = DrawStyles.Animated.Length;
+        Assert.Equal(10, styles);
+        var dealt = Enumerable.Range(0, styles * 50).Select(_ => deck.Next(DrawStyle.Random, random)).ToList();
         for (var round = 0; round < 50; round++)
         {
-            Assert.Equal(DrawStyles.Animated.OrderBy(s => s), dealt.Skip(round * 9).Take(9).OrderBy(s => s));
+            Assert.Equal(DrawStyles.Animated.OrderBy(s => s), dealt.Skip(round * styles).Take(styles).OrderBy(s => s));
         }
         for (var i = 1; i < dealt.Count; i++)
         {
@@ -94,6 +96,7 @@ public class TimelineTests
         var n = f.Location.YearCount;
         Assert.Equal(Enumerable.Range(0, n), f.Order.OrderBy(i => i));
         Assert.Equal(Enumerable.Range(0, n * Timeline.MosaicRows), f.TileOrder.OrderBy(i => i));
+        Assert.Equal(Enumerable.Range(0, n), f.WarmOrder.OrderBy(i => i));
     }
 
     [Fact]
