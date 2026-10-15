@@ -1,0 +1,15 @@
+#!/bin/sh
+# Runs after the installer copies Stripes.saver. $2 is the folder it went into.
+
+# A copy in the other Screen Savers folder can win over the new one, so it goes to the Trash.
+case "$2" in
+    "/Library/Screen Savers"*) other="$HOME/Library/Screen Savers/Stripes.saver" ;;
+    *) other="/Library/Screen Savers/Stripes.saver" ;;
+esac
+if [ -e "$other" ]; then
+    mv "$other" "$HOME/.Trash/Stripes.saver.$(date +%s)" || true
+fi
+
+# The saver host keeps the old bundle loaded until it restarts.
+killall legacyScreenSaver 2>/dev/null || true
+exit 0

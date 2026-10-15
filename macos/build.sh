@@ -1,5 +1,7 @@
 #!/bin/sh
 # Build Stripes.saver (universal) and install it into ~/Library/Screen Savers.
+# Usage: build.sh [install | release | pkg]. "release" notarizes the saver and zips it;
+# "pkg" does the same and also builds a signed, notarized installer package.
 set -eu
 cd "$(dirname "$0")"
 
@@ -30,7 +32,7 @@ cp ../data/stripes.json "$out/Contents/Resources/"
 tiffutil -cathidpicheck Resources/thumbnail.png Resources/thumbnail@2x.png \
     -out "$out/Contents/Resources/thumbnail.tiff" >/dev/null
 
-if [ "${1:-}" = release ]; then
+if [ "${1:-}" = release ] || [ "${1:-}" = pkg ]; then
     codesign --force --options runtime --timestamp \
         --sign "Developer ID Application: Georgios Karamanis (N4B5PD6UN5)" "$out"
 
@@ -46,6 +48,45 @@ if [ "${1:-}" = release ]; then
     echo "Notarized: $zip"
 else
     codesign --force --sign - "$out"
+fi
+
+if [ "${1:-}" = pkg ]; then
+    work=build/pkg
+    mkdir -p "$work/root"
+    ditto "$out" "$work/root/Stripes.saver"
+
+    # Not relocatable, so the installer never writes over a copy it finds somewhere else.
+    pkgbuild --analyze --root "$work/root" "$work/component.plist" >/dev/null
+    plutil -replace 0.BundleIsRelocatable -bool NO "$work/component.plist"
+    mkdir -p "$work/scripts"
+    cp pkg/postinstall "$work/scripts/"
+    chmod +x "$work/scripts/postinstall"
+    pkgbuild --root "$work/root" --component-plist "$work/component.plist" \
+        --scripts "$work/scripts" --identifier is.karaman.stripes-saver --version "$version" \
+        --install-location "/Library/Screen Savers" "$work/Stripes.pkg"
+
+    # The user picks this Mac or only their own account; the second needs no admin password.
+    cat > "$work/distribution.xml" <<EOF
+<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="2">
+    <title>Stripes</title>
+    <domains enable_anywhere="false" enable_currentUserHome="true" enable_localSystem="true"/>
+    <options customize="never" require-scripts="false" hostArchitectures="arm64,x86_64"/>
+    <volume-check><allowed-os-versions><os-version min="13.0"/></allowed-os-versions></volume-check>
+    <choices-outline><line choice="default"/></choices-outline>
+    <choice id="default" title="Stripes"><pkg-ref id="is.karaman.stripes-saver"/></choice>
+    <pkg-ref id="is.karaman.stripes-saver" version="$version">Stripes.pkg</pkg-ref>
+</installer-gui-script>
+EOF
+
+    pkg="build/Stripes-$version.pkg"
+    productbuild --distribution "$work/distribution.xml" --package-path "$work" \
+        --sign "Developer ID Installer: Georgios Karamanis (N4B5PD6UN5)" --timestamp "$pkg"
+    rm -rf "$work"
+    xcrun notarytool submit "$pkg" --keychain-profile stripes-notary --wait
+    xcrun stapler staple "$pkg"
+    spctl -a -vv -t install "$pkg"
+    echo "Notarized: $pkg"
 fi
 
 if [ "${1:-}" = install ]; then
