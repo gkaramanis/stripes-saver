@@ -1,6 +1,6 @@
 # Warming stripes screensaver for macOS and Windows
 
-**[Download Stripes 1.1](https://github.com/gkaramanis/stripes-saver/releases/download/macos-v1.1/Stripes-1.1.zip)** (288 KB, macOS 13 or later). Install steps are under [Download](#download).
+**[Download Stripes 1.1](https://github.com/gkaramanis/stripes-saver/releases/download/macos-v1.1/Stripes-1.1.pkg)** (304 KB, macOS 13 or later). Install steps are under [Download](#download).
 
 A Windows version by Carey Blunt is in [`windows/`](windows/README.md), with its own install steps.
 
@@ -14,14 +14,16 @@ The bundle includes all 1,069 locations on [showyourstripes.info](https://showyo
 
 ## Download
 
-[Stripes 1.1](https://github.com/gkaramanis/stripes-saver/releases/download/macos-v1.1/Stripes-1.1.zip) (288 KB). Requires macOS 13 or later, Apple silicon or Intel.
+[Stripes 1.1 installer](https://github.com/gkaramanis/stripes-saver/releases/download/macos-v1.1/Stripes-1.1.pkg) (304 KB), or the [screensaver on its own](https://github.com/gkaramanis/stripes-saver/releases/download/macos-v1.1/Stripes-1.1.zip) (288 KB). Requires macOS 13 or later, Apple silicon or Intel.
 
 I've tested Stripes on macOS 26 and 27 on Apple silicon. It should work on macOS 13 and later and on Intel Macs. If something doesn't work, [open an issue](https://github.com/gkaramanis/stripes-saver/issues) or email me at [stripes@karaman.is](mailto:stripes@karaman.is) with your macOS version and Mac model. Issues with ports to other platforms go to [GitHub issues](https://github.com/gkaramanis/stripes-saver/issues) only, so the person who maintains the port sees them.
 
-1. Unzip and double-click `Stripes.saver`, then choose to install it for this user only.
+1. Open `Stripes-1.1.pkg` and follow the steps. To use the zip instead, unzip it and double-click `Stripes.saver`, then choose to install it for this user only.
 2. Select Stripes under System Settings → Wallpaper → Screen Saver… → Custom (macOS 26 and later) or System Settings → Screen Saver (macOS 13 to 15).
 
 If `Options…` stops responding, quit and reopen System Settings.
+
+The installer also updates an older version. After updating from the zip, macOS can keep running the old version, so a new style such as Warming draws as Sweep. Run `killall legacyScreenSaver` in Terminal, or log out and back in.
 
 System Settings shows a thumbnail of the stripes. If you installed Stripes before 2 October 2026, it may keep showing a generic image, because macOS caches thumbnails and doesn't refresh them when a screensaver is updated.
 
@@ -58,6 +60,7 @@ The stripes are free to use. Show Your Stripes also accepts [donations](https://
 ```sh
 macos/build.sh install     # build and install into ~/Library/Screen Savers
 macos/build.sh release     # sign with Developer ID, notarize, staple, zip to macos/build/
+macos/build.sh pkg         # the same, plus a signed, notarized installer package
 python3 data/sample.py     # refresh data/stripes.json (needs Pillow)
 python3 macos/thumbnail.py # redraw the System Settings thumbnails from the data
 ```
