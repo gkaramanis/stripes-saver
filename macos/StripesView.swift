@@ -71,20 +71,40 @@ final class StripesView: ScreenSaverView {
         setUp()
     }
 
+    // Tells views apart in the log when several displays run Stripes in one process.
+    private var logID: String { String(UInt(bitPattern: ObjectIdentifier(self).hashValue) & 0xFFFF, radix: 16) }
+
+    // Whether the host or the view itself has started the animation.
+    private var started = false
+
     private func setUp() {
-        log.info("view created, preview=\(self.isPreview), pid=\(getpid())")
+        log.notice("view \(self.logID, privacy: .public) created, preview=\(self.isPreview), pid=\(getpid())")
         animationTimeInterval = 1.0 / 30
         apply(Settings.current)
     }
 
     // Since macOS 14 the host does not always stop a view when the screen saver ends. A view
-    // whose window has gone stops animating, so leftover views do not keep drawing.
+    // whose window has gone stops animating, so leftover views do not keep drawing. Around
+    // display changes the host can also put a new view on screen and never start it, which
+    // leaves the label alone on black, so a view not started a second after it gets a
+    // window starts itself.
     override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
+        log.notice("view \(self.logID, privacy: .public) window \(self.window == nil ? "gone" : "set", privacy: .public), animating=\(self.isAnimating), screen=\(self.window?.screen?.localizedName ?? "-", privacy: .public)")
         if window == nil, isAnimating {
-            log.info("window gone, stopping, preview=\(self.isPreview)")
             stopAnimation()
+        } else if window != nil, !isPreview, !started {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+                guard let self, self.window != nil, !self.started else { return }
+                log.notice("view \(self.logID, privacy: .public) not started by the host, starting")
+                self.startAnimation()
+            }
         }
+    }
+
+    override func stopAnimation() {
+        log.notice("view \(self.logID, privacy: .public) stopAnimation")
+        super.stopAnimation()
     }
 
     func apply(_ s: Settings) {
@@ -113,6 +133,8 @@ final class StripesView: ScreenSaverView {
     }
 
     override func startAnimation() {
+        log.notice("view \(self.logID, privacy: .public) startAnimation, window=\(self.window != nil)")
+        started = true
         super.startAnimation()
         show(index)
     }

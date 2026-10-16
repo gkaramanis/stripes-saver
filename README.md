@@ -1,6 +1,6 @@
 # Warming stripes screensaver for macOS and Windows
 
-**[Download Stripes 1.1](https://github.com/gkaramanis/stripes-saver/releases/download/macos-v1.1/Stripes-1.1.pkg)** (304 KB, macOS 13 or later). Install steps are under [Download](#download).
+**[Download Stripes 1.1.1](https://github.com/gkaramanis/stripes-saver/releases/download/macos-v1.1.1/Stripes-1.1.1.pkg)** (316 KB, macOS 13 or later). Install steps are under [Download](#download).
 
 A Windows version by Carey Blunt is in [`windows/`](windows/README.md), with its own install steps.
 
@@ -14,11 +14,11 @@ The bundle includes all 1,069 locations on [showyourstripes.info](https://showyo
 
 ## Download
 
-[Stripes 1.1 installer](https://github.com/gkaramanis/stripes-saver/releases/download/macos-v1.1/Stripes-1.1.pkg) (304 KB), or the [screensaver on its own](https://github.com/gkaramanis/stripes-saver/releases/download/macos-v1.1/Stripes-1.1.zip) (288 KB). Requires macOS 13 or later, Apple silicon or Intel.
+[Stripes 1.1.1 installer](https://github.com/gkaramanis/stripes-saver/releases/download/macos-v1.1.1/Stripes-1.1.1.pkg) (316 KB), or the [screensaver on its own](https://github.com/gkaramanis/stripes-saver/releases/download/macos-v1.1.1/Stripes-1.1.1.zip) (300 KB). Requires macOS 13 or later, Apple silicon or Intel.
 
 I've tested Stripes on macOS 26 and 27 on Apple silicon. It should work on macOS 13 and later and on Intel Macs. If something doesn't work, [open an issue](https://github.com/gkaramanis/stripes-saver/issues) or email me at [stripes@karaman.is](mailto:stripes@karaman.is) with your macOS version and Mac model. Issues with ports to other platforms go to [GitHub issues](https://github.com/gkaramanis/stripes-saver/issues) only, so the person who maintains the port sees them.
 
-1. Open `Stripes-1.1.pkg` and follow the steps. To use the zip instead, unzip it and double-click `Stripes.saver`, then choose to install it for this user only.
+1. Open `Stripes-1.1.1.pkg` and follow the steps. To use the zip instead, unzip it and double-click `Stripes.saver`, then choose to install it for this user only.
 2. Select Stripes under System Settings → Wallpaper → Screen Saver… → Custom (macOS 26 and later) or System Settings → Screen Saver (macOS 13 to 15).
 
 If `Options…` stops responding, quit and reopen System Settings.
