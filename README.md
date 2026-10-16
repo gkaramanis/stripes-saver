@@ -52,6 +52,7 @@ The stripes are free to use. Show Your Stripes also accepts [donations](https://
 | `data/` | `stripes.json`, shared by every platform, and `sample.py`, which builds it |
 | `macos/` | The macOS screensaver |
 | `windows/` | The Windows screensaver, by Carey Blunt. See its [README](windows/README.md) |
+| `steam/` | The Steam Deck and Big Picture screensaver. See its [README](steam/README.md) |
 
 [SPEC.md](SPEC.md) describes the options, the data and every style in detail, for ports to other platforms. A port goes in its own folder, such as `windows/`, reads `data/stripes.json`, and is released under its own tag, such as `windows-v1.0`. Send changes as pull requests.
 
