@@ -9,11 +9,15 @@ The folder name must be lowercase. Steam turns it into a hostname, which the bro
 ## Install on a Steam Deck
 
 1. Switch to Desktop Mode.
-2. Download `Stripes-steam.zip` and extract it, so you have a `stripes` folder.
+2. Download [Stripes-steam.zip](https://github.com/gkaramanis/stripes-saver/releases/download/steam-v1.0/Stripes-steam.zip) (95 KB) and extract it, so you have a `stripes` folder.
 3. Move that folder into `~/.steam/root/config/uioverrides/screensavers/`. Create `uioverrides` and `screensavers` if they don't exist. In Dolphin, press Ctrl+H to show hidden folders such as `.steam`.
 4. Switch back to Gaming Mode and choose stripes under Settings → Customization → Screensaver. Preview shows it right away.
 
 From a Mac or Linux machine with ssh access to the Deck, `steam/build.sh deck <host>` builds the folder and copies it over. An existing `config.js` on the Deck is kept.
+
+## Install on Windows (untested)
+
+Big Picture on Windows should run it too, but it hasn't been tested there. Extract the zip and move the `stripes` folder into `config\uioverrides\screensavers\` inside the Steam install folder, usually `C:\Program Files (x86)\Steam`. Then open Big Picture and choose stripes under Settings → Customization → Screensaver.
 
 ## Options
 
