@@ -9,7 +9,7 @@ The folder name must be lowercase. Steam turns it into a hostname, which the bro
 ## Install on a Steam Deck
 
 1. Switch to Desktop Mode.
-2. Download [Stripes-steam.zip](https://github.com/gkaramanis/stripes-saver/releases/download/steam-v1.0/Stripes-steam.zip) (95 KB) and extract it, so you have a `stripes` folder.
+2. Download [Stripes-steam.zip](https://github.com/gkaramanis/stripes-saver/releases/download/steam-v1.0/Stripes-steam.zip) (102 KB) and extract it, so you have a `stripes` folder.
 3. Move that folder into `~/.steam/root/config/uioverrides/screensavers/`. Create `uioverrides` and `screensavers` if they don't exist. In Dolphin, press Ctrl+H to show hidden folders such as `.steam`.
 4. Switch back to Gaming Mode and choose stripes under Settings → Customization → Screensaver. Preview shows it right away.
 
@@ -21,7 +21,7 @@ Big Picture on Windows should run it too, but it hasn't been tested there. Extra
 
 ## Options
 
-Steam has no options screen for custom screensavers, so the options live in `stripes/config.js`. Edit it with any text editor, then pick the screensaver again or restart Steam. The options and defaults match the macOS version: build in Sweep, build out Fade, 14 seconds each, the label on, and Global. [LOCATIONS.md](LOCATIONS.md) lists every location name `config.js` accepts.
+Steam has no options screen for custom screensavers, so the options live in `stripes/config.js`. Edit it with any text editor, then pick the screensaver again or restart Steam. The options and defaults match the macOS version: build in Sweep, build out Fade, 14 seconds each, the label on, and Global. [locations.txt](locations.txt), which ships next to `config.js`, lists every location name it accepts.
 
 The label uses SF Mono where it's installed. SteamOS doesn't have it, so the Deck falls back to DejaVu Sans Mono or the system monospace font. `labelSize` scales with the screen height, so the label keeps its proportions when the Deck is docked to a larger display.
 
