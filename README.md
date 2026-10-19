@@ -1,8 +1,10 @@
-# Warming stripes screensaver for macOS and Windows
+# Warming stripes screensaver for macOS, Windows and Steam
 
 **[Download Stripes 1.1.1](https://github.com/gkaramanis/stripes-saver/releases/download/macos-v1.1.1/Stripes-1.1.1.pkg)** (316 KB, macOS 13 or later). Install steps are under [Download](#download).
 
 A Windows version by Carey Blunt is in [`windows/`](windows/README.md), with its own install steps.
+
+A Steam Deck and Big Picture version is in [`steam/`](steam/README.md), with its own install steps.
 
 *Note:* On macOS 26 and later, the `Options…` button can stop responding after the screensaver has run. It's a macOS bug that affects other third-party screensavers too. Quit and reopen System Settings, and `Options…` works again.
 
