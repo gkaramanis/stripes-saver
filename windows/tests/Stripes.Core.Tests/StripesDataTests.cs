@@ -92,6 +92,24 @@ public class StripesDataTests
     }
 
     [Fact]
+    public void Warmth_runs_from_dark_blue_to_dark_red_with_grey_in_the_middle()
+    {
+        Assert.Equal(0, StripesData.Warmth(Rgb.Parse("001944")));
+        Assert.Equal(18, StripesData.Warmth(Rgb.Parse("440007")));
+        Assert.Equal(9, StripesData.Warmth(Rgb.Parse("7f7f7f")));
+        Assert.Equal(9, StripesData.Warmth(Rgb.Parse("123456")));  // unknown colours sit with grey
+        Assert.True(StripesData.Warmth(Rgb.Parse("deebf7")) < StripesData.Warmth(Rgb.Parse("fee0d2")));
+    }
+
+    [Fact]
+    public void Warmth_ranks_coldest_first_and_ties_left_to_right()
+    {
+        // Years: red, blue, grey, blue, dark red, dark blue.
+        var data = Make(["67000d", "08519c", "7f7f7f", "440007", "001944"], ("Global", "", "", 2000, "012134"));
+        Assert.Equal([4, 1, 3, 2, 5, 0], StripesData.WarmthRanks(data.Global));
+    }
+
+    [Fact]
     public void Resolve_keeps_display_order_and_drops_missing_names()
     {
         var data = Make(TwoColours, GlobalEntry, ("Europe", "Sweden", "", 1850, "0"), ("Europe", "Norway", "", 1850, "0"));

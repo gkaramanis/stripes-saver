@@ -12,7 +12,7 @@ public class PainterTests
         var tiles = Enumerable.Range(0, n * Timeline.MosaicRows).ToArray();
         var list = new DrawList();
         list.Reset(W, H);
-        Painter.Paint(list, Global, style, p, erase, order, tiles);
+        Painter.Paint(list, Global, style, p, erase, order, tiles, StripesData.WarmthRanks(Global));
         return list.Commands.ToList();
     }
 
@@ -51,6 +51,7 @@ public class PainterTests
     [InlineData(DrawStyle.Flip, 176, 22.0)]
     [InlineData(DrawStyle.Scatter, 176, 8.8)]
     [InlineData(DrawStyle.Scatter, 10, 1.0)]  // never below one stripe
+    [InlineData(DrawStyle.Warming, 176, 8.8)]
     public void Wave_widths(DrawStyle style, double n, double expected) =>
         Assert.Equal(expected, Painter.Wave(style, n), 9);
 
@@ -64,6 +65,7 @@ public class PainterTests
     [InlineData(DrawStyle.Mosaic)]
     [InlineData(DrawStyle.Blinds)]
     [InlineData(DrawStyle.Iris)]
+    [InlineData(DrawStyle.Warming)]
     public void Nothing_is_drawn_at_the_start(DrawStyle style) =>
         Assert.DoesNotContain(Paint(style, 0), c => c.Kind is DrawKind.Rect or DrawKind.Quad);
 
@@ -75,6 +77,7 @@ public class PainterTests
     [InlineData(DrawStyle.Drop)]
     [InlineData(DrawStyle.Flip)]
     [InlineData(DrawStyle.Iris)]
+    [InlineData(DrawStyle.Warming)]
     public void Finished_stripes_tile_the_screen_exactly(DrawStyle style)
     {
         var rects = Paint(style, 1).Where(c => c.Kind == DrawKind.Rect).ToList();
@@ -101,6 +104,19 @@ public class PainterTests
         var n = Global.YearCount;
         Assert.Equal(n / 2, rects.Count);
         Assert.All(rects, r => Assert.Equal(1f, r.A));
+    }
+
+    [Fact]
+    public void Warming_reveals_the_coldest_years_first()
+    {
+        // A tenth of the way in, every stripe drawn is colder than or as cold as every stripe not yet started.
+        var rects = Paint(DrawStyle.Warming, 0.1);
+        Assert.NotEmpty(rects);
+        var stripe = W / Global.YearCount;
+        var drawn = rects.Select(r => (int)Math.Round(r.X0 / stripe)).ToHashSet();
+        var warmest = drawn.Max(i => StripesData.Warmth(Global.Colours[i]));
+        var waiting = Enumerable.Range(0, Global.YearCount).Where(i => !drawn.Contains(i));
+        Assert.All(waiting, i => Assert.True(StripesData.Warmth(Global.Colours[i]) >= warmest));
     }
 
     [Fact]

@@ -1,7 +1,7 @@
 namespace Stripes;
 
 // In the same order as the macOS DrawStyle. Random picks one of the others for each location.
-public enum DrawStyle { Sweep, Rise, Scatter, Fade, Drop, Flip, Blinds, Iris, Mosaic, Random }
+public enum DrawStyle { Sweep, Rise, Scatter, Fade, Drop, Flip, Blinds, Iris, Mosaic, Warming, Random }
 
 public static class DrawStyles
 {
