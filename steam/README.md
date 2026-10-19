@@ -21,7 +21,7 @@ Big Picture on Windows should run it too, but it hasn't been tested there. Extra
 
 ## Options
 
-Steam has no options screen for custom screensavers, so the options live in `stripes/config.js`. Edit it with any text editor, then pick the screensaver again or restart Steam. The options and defaults match the macOS version: build in Sweep, build out Fade, 14 seconds each, the label on, and Global.
+Steam has no options screen for custom screensavers, so the options live in `stripes/config.js`. Edit it with any text editor, then pick the screensaver again or restart Steam. The options and defaults match the macOS version: build in Sweep, build out Fade, 14 seconds each, the label on, and Global. [LOCATIONS.md](LOCATIONS.md) lists every location name `config.js` accepts.
 
 The label uses SF Mono where it's installed. SteamOS doesn't have it, so the Deck falls back to DejaVu Sans Mono or the system monospace font. `labelSize` scales with the screen height, so the label keeps its proportions when the Deck is docked to a larger display.
 

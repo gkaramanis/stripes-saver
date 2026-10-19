@@ -23,6 +23,8 @@ const STRIPES_CONFIG = {
     labelSize: 24,
 
     // Names as showyourstripes.info gives them: "Global", "Sweden", "Stockholm, Sweden".
+    // Every name is listed at
+    // https://github.com/gkaramanis/stripes-saver/blob/main/steam/LOCATIONS.md
     // The saver plays them Global first, then alphabetically, and loops.
     locations: ["Global"],
 };
