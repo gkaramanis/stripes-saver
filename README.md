@@ -6,6 +6,8 @@ A Windows version by Carey Blunt is in [`windows/`](windows/README.md), with its
 
 A Steam Deck and Big Picture version is in [`steam/`](steam/README.md), with its own install steps.
 
+An app for AWTRIX NG clocks, such as the Ulanzi TC002, is in [`awtrix/`](awtrix/README.md).
+
 *Note:* On macOS 26 and later, the `Options…` button can stop responding after the screensaver has run. It's a macOS bug that affects other third-party screensavers too. Quit and reopen System Settings, and `Options…` works again.
 
 <img src="images/hero.jpg" alt="A MacBook Pro on a desk in an office, its screen showing the warming stripes for Sweden, 1850 to 2025. Behind it, a window fills the whole wall, with autumn trees in yellow and orange outside." width="800">
@@ -55,6 +57,7 @@ The stripes are free to use. Show Your Stripes also accepts [donations](https://
 | `macos/` | The macOS screensaver |
 | `windows/` | The Windows screensaver, by Carey Blunt. See its [README](windows/README.md) |
 | `steam/` | The Steam Deck and Big Picture screensaver. See its [README](steam/README.md) |
+| `awtrix/` | The app for AWTRIX NG clocks. See its [README](awtrix/README.md) |
 
 [SPEC.md](SPEC.md) describes the options, the data and every style in detail, for ports to other platforms. A port goes in its own folder, such as `windows/`, reads `data/stripes.json`, and is released under its own tag, such as `windows-v1.0`. Send changes as pull requests.
 

@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stripes Places</title>
+<style>
+  :root {
+    --bg: #f4f4f2; --panel: #ffffff; --ink: #1b1b1b; --muted: #6b6b6b;
+    --line: #dcdcd8; --hi: #e8eef6; --accent: #cb181d; --ok: #2171b5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0d0d0e; --panel: #161618; --ink: #e9e9e6; --muted: #8d8d8a;
+      --line: #2a2a2d; --hi: #1f2733; --accent: #fb6a4a; --ok: #6baed6;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.4 ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  main { max-width: 980px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 18px; margin: 0 0 4px; letter-spacing: .02em; }
+  .sub { color: var(--muted); margin: 0 0 20px; font-size: 13px; }
+  .bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 20px; }
+  input, button {
+    font: inherit; color: inherit; background: var(--panel);
+    border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px;
+  }
+  button { cursor: pointer; }
+  button:hover { border-color: var(--muted); }
+  button.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  button:disabled { opacity: .4; cursor: default; }
+  #host { width: 240px; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 760px) { .cols { grid-template-columns: 1fr; } }
+  section { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px; min-width: 0; }
+  h2 { font-size: 13px; font-weight: 600; margin: 0 0 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; display: flex; justify-content: space-between; }
+  #q { width: 100%; margin-bottom: 10px; }
+  ul { list-style: none; margin: 0; padding: 0; max-height: 60vh; overflow-y: auto; }
+  li { display: grid; grid-template-columns: 104px 1fr auto; gap: 10px; align-items: center; padding: 6px; border-radius: 5px; }
+  #results li { cursor: pointer; }
+  #results li:hover, #results li.sel { background: var(--hi); }
+  li .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  li .meta { color: var(--muted); font-size: 12px; white-space: nowrap; }
+  li .btns { display: flex; gap: 4px; }
+  li .btns button { padding: 2px 8px; }
+  canvas { width: 104px; height: 16px; image-rendering: pixelated; border-radius: 2px; display: block; }
+  .group { width: 104px; height: 16px; border: 1px dashed var(--line); border-radius: 2px; color: var(--muted); font-size: 11px; display: grid; place-items: center; }
+  .empty { color: var(--muted); padding: 6px; }
+  #status { color: var(--muted); font-size: 13px; }
+  #status.err { color: var(--accent); }
+  #status.ok { color: var(--ok); }
+  footer { color: var(--muted); font-size: 12px; margin-top: 20px; }
+  footer a { color: inherit; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Stripes places</h1>
+  <p class="sub">Search, add, order, save. The clock plays them top to bottom (or shuffled, if Order is set to shuffled).</p>
+
+  <div class="bar">
+    <input id="host" placeholder="Clock address, such as http://192.168.1.50" aria-label="Clock address">
+    <button id="connect">Load from clock</button>
+    <button id="save" class="primary" disabled>Save to clock</button>
+    <span id="status">Not loaded.</span>
+  </div>
+
+  <div class="cols">
+    <section>
+      <h2><span>Search</span><span id="count"></span></h2>
+      <input id="q" placeholder="Place, country or region" autocomplete="off" disabled>
+      <ul id="results"></ul>
+    </section>
+    <section>
+      <h2><span>Playing</span><span><button id="clear" disabled>Clear</button></span></h2>
+      <ul id="chosen"></ul>
+    </section>
+  </div>
+
+  <footer>Warming stripes by Ed Hawkins, <a href="https://showyourstripes.info">showyourstripes.info</a>, CC BY 4.0. Each preview averages a place's years into the clock's 52 columns.</footer>
+</main>
+
+<script>
+const SCALE = ["001944","08306b","08519c","2171b5","4292c6","6baed6","9ecae1","c6dbef","deebf7",
+  "fee0d2","fcbba1","fc9272","fb6a4a","ef3b2c","cb181d","a50f15","67000d","440007"];
+const APP = "Stripes";
+const $ = (id) => document.getElementById(id);
+
+let places = [];          // {name, region, first, last, cols, key}
+let byName = new Map();   // lower-cased name -> place
+let regions = [];         // {name, count}
+let chosen = [];          // entries: {kind: "place"|"region"|"all"|"raw", label, place?}
+let results = [];
+let sel = 0;
+
+const fold = (s) => s.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase();
+const host = () => $("host").value.trim().replace(/\/+$/, "");
+
+// The last address used, kept in this browser only
+try { $("host").value = localStorage.getItem("stripes-host") || ""; } catch (e) {}
+const rememberHost = () => { try { localStorage.setItem("stripes-host", host()); } catch (e) {} };
+
+function status(text, cls = "") {
+  $("status").textContent = text;
+  $("status").className = cls;
+}
+
+function preview(cols) {
+  const c = document.createElement("canvas");
+  c.width = 52; c.height = 1;
+  const g = c.getContext("2d");
+  [...cols].forEach((ch, x) => {
+    g.fillStyle = ch === "-" ? "#7f7f7f" : "#" + SCALE[ch.charCodeAt(0) - 97];
+    g.fillRect(x, 0, 1, 1);
+  });
+  return c;
+}
+
+function groupBox(text) {
+  const d = document.createElement("div");
+  d.className = "group";
+  d.textContent = text;
+  return d;
+}
+
+// Turns one entry of the Places setting into a list item, matching the way the app reads it
+function entryFor(raw) {
+  const want = raw.trim().toLowerCase();
+  if (!want) return null;
+  if (want === "all") return { kind: "all", label: "all" };
+  const exact = byName.get(want);
+  if (exact) return { kind: "place", label: exact.name, place: exact };
+  const pre = places.filter(p => p.name.toLowerCase().startsWith(want + ", "));
+  if (pre.length === 1) return { kind: "place", label: pre[0].name, place: pre[0] };
+  if (pre.length > 1) return { kind: "raw", label: raw.trim(), note: pre.length + " places" };
+  const reg = regions.find(r => r.name.toLowerCase() === want);
+  if (reg) return { kind: "region", label: reg.name, note: reg.count + " places" };
+  return { kind: "raw", label: raw.trim(), note: "no match" };
+}
+
+function row(entry, buttons) {
+  const li = document.createElement("li");
+  if (entry.place) li.append(preview(entry.place.cols));
+  else li.append(groupBox(entry.kind === "all" ? "ALL" : entry.kind === "region" ? "REGION" : "?"));
+  const text = document.createElement("div");
+  const name = document.createElement("div");
+  name.className = "name";
+  name.textContent = entry.kind === "all" ? "All places" : entry.label;
+  const meta = document.createElement("div");
+  meta.className = "meta";
+  meta.textContent = entry.place
+    ? `${entry.place.region} · ${entry.place.first}–${entry.place.last}`
+    : entry.kind === "all" ? `${places.length} places` : entry.note;
+  text.append(name, meta);
+  li.append(text);
+  if (buttons) li.append(buttons);
+  return li;
+}
+
+function search() {
+  const q = fold($("q").value.trim());
+  const list = [];
+  if (q) {
+    if ("all places".startsWith(q)) list.push({ kind: "all", label: "all" });
+    for (const r of regions) {
+      if (fold(r.name).includes(q)) list.push({ kind: "region", label: r.name, note: `${r.count} places` });
+    }
+    const starts = [], contains = [];
+    for (const p of places) {
+      const k = p.key;
+      if (k.startsWith(q) || k.includes(", " + q)) starts.push(p);
+      else if (k.includes(q) || fold(p.region).includes(q)) contains.push(p);
+    }
+    for (const p of starts.concat(contains).slice(0, 80)) list.push({ kind: "place", label: p.name, place: p });
+  }
+  results = list;
+  sel = 0;
+  drawResults();
+}
+
+function drawResults() {
+  const ul = $("results");
+  ul.replaceChildren();
+  if (!$("q").value.trim()) {
+    ul.innerHTML = '<li class="empty">Type to search 1,069 places.</li>';
+    return;
+  }
+  if (!results.length) {
+    ul.innerHTML = '<li class="empty">No match.</li>';
+    return;
+  }
+  results.forEach((e, i) => {
+    const li = row(e);
+    if (i === sel) li.classList.add("sel");
+    li.addEventListener("click", () => add(e));
+    ul.append(li);
+  });
+  ul.children[sel]?.scrollIntoView({ block: "nearest" });
+}
+
+function add(e) {
+  if (chosen.some(c => c.kind === e.kind && c.label === e.label)) {
+    status(`${e.label} is already on the list.`);
+    return;
+  }
+  chosen.push(e);
+  drawChosen();
+  status(`Added ${e.kind === "all" ? "all places" : e.label}. Not saved yet.`);
+}
+
+function drawChosen() {
+  const ul = $("chosen");
+  ul.replaceChildren();
+  $("clear").disabled = !chosen.length;
+  if (!chosen.length) {
+    ul.innerHTML = '<li class="empty">Nothing yet. The clock falls back to Global.</li>';
+    return;
+  }
+  chosen.forEach((e, i) => {
+    const btns = document.createElement("div");
+    btns.className = "btns";
+    const mk = (label, title, fn, off) => {
+      const b = document.createElement("button");
+      b.textContent = label;
+      b.title = title;
+      b.setAttribute("aria-label", title);
+      b.disabled = off;
+      b.addEventListener("click", fn);
+      btns.append(b);
+    };
+    mk("↑", "Move up", () => move(i, -1), i === 0);
+    mk("↓", "Move down", () => move(i, 1), i === chosen.length - 1);
+    mk("×", "Remove", () => { chosen.splice(i, 1); drawChosen(); }, false);
+    ul.append(row(e, btns));
+  });
+}
+
+function move(i, d) {
+  [chosen[i], chosen[i + d]] = [chosen[i + d], chosen[i]];
+  drawChosen();
+}
+
+async function load() {
+  status("Loading…");
+  rememberHost();
+  try {
+    const src = await (await fetch(`${host()}/api/v1/apps/script/${APP}`)).text();
+    const re = /^\s*\[("(?:[^"\\]|\\.)*"), "([^"]*)", (\d+), (\d+), "([a-r-]{52})"\],?$/gm;
+    places = [];
+    for (const m of src.matchAll(re)) {
+      const name = JSON.parse(m[1]);
+      places.push({ name, region: m[2], first: +m[3], last: +m[4], cols: m[5], key: fold(name) });
+    }
+    if (!places.length) throw new Error("no place table in the Stripes script");
+    byName = new Map(places.map(p => [p.name.toLowerCase(), p]));
+    const counts = new Map();
+    for (const p of places) counts.set(p.region, (counts.get(p.region) || 0) + 1);
+    regions = [...counts].filter(([r]) => r !== "Global").map(([name, count]) => ({ name, count }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+    const cfg = await (await fetch(`${host()}/api/v1/apps/${APP}/config`)).json();
+    const field = (cfg.fields || []).find(f => f.key === "places");
+    chosen = String(field?.value ?? "").split(";").map(entryFor).filter(Boolean);
+    drawChosen();
+    $("q").disabled = false;
+    $("save").disabled = false;
+    $("count").textContent = places.length.toLocaleString("en") + " places";
+    $("q").focus();
+    drawResults();
+    status(`Loaded ${chosen.length} entries from the clock.`, "ok");
+  } catch (err) {
+    status(`Could not load: ${err.message}. Is the clock on and the address right?`, "err");
+  }
+}
+
+async function save() {
+  const value = chosen.map(e => e.label).join("; ");
+  if (value.length > 8000) {
+    status(`Too long for the setting (${value.length} of 8000 characters). Add a region instead of its places.`, "err");
+    return;
+  }
+  status("Saving…");
+  try {
+    const r = await fetch(`${host()}/api/v1/apps/${APP}/config`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ places: value || "Global" }),
+    });
+    const body = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(body?.error?.message || `HTTP ${r.status}`);
+    status(`Saved ${chosen.length} entries. The app restarts with them.`, "ok");
+  } catch (err) {
+    status(`Could not save: ${err.message}`, "err");
+  }
+}
+
+$("connect").addEventListener("click", load);
+$("save").addEventListener("click", save);
+$("clear").addEventListener("click", () => { chosen = []; drawChosen(); status("Cleared. Not saved yet."); });
+$("q").addEventListener("input", search);
+$("q").addEventListener("keydown", (ev) => {
+  if (ev.key === "ArrowDown") { sel = Math.min(sel + 1, results.length - 1); drawResults(); ev.preventDefault(); }
+  else if (ev.key === "ArrowUp") { sel = Math.max(sel - 1, 0); drawResults(); ev.preventDefault(); }
+  else if (ev.key === "Enter" && results[sel]) { add(results[sel]); $("q").select(); }
+});
+drawChosen();
+load();
+</script>
+</body>
+</html>
