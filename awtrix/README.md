@@ -26,10 +26,6 @@ The options are in the app's settings in the web UI.
 
 Two styles have other names here. On columns one pixel wide, Flip opens from the middle row, so it's called Open, and Mosaic dissolves pixel by pixel, so it's called Dissolve. The title card waits out the clock's transition, so a slow fade doesn't hide it.
 
-## Picking places
-
-`places.html` is easier than typing names. Open it from disk in a browser, enter the clock's address and press Load from clock. It reads the location list from the app, so search, add and reorder, then press Save to clock. It expects the app to be installed as `Stripes`.
-
 ## Building
 
 ```sh
