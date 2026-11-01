@@ -6,7 +6,7 @@ Each time the app comes round in the clock's rotation, it shows the next locatio
 
 ## Install
 
-Install it from the [AWTRIX Hub](https://awtrix.de/scripts) by searching for Stripes, or by hand. To install by hand, open the clock's web UI, go to Scripts, import `stripes.be` and save it as `Stripes`. Or use the API:
+Install it from [its page on the AWTRIX Hub](https://awtrix.de/script/X9n6TDj2SfmE), or by hand. To install by hand, open the clock's web UI, go to Scripts, import `stripes.be` and save it as `Stripes`. Or use the API:
 
 ```sh
 curl -X PUT http://<clock>/api/v1/apps/script/Stripes \
