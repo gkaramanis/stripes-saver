@@ -1,9 +1,9 @@
 # @name Stripes
 # @desc Warming stripes by Ed Hawkins (showyourstripes.info, CC BY 4.0) for all 1,069 places: a new place each time the app comes round, built in and out in the screensaver's ten styles.
 # @author georgios
-# @version 0.4
+# @version 0.5
 # @display 52x16
-# @config places text "Places" default="Global; Sweden; Uppsala, Sweden; Stockholm, Sweden; Greece; Athens, Greece" maxlen=8000 help="Separated by semicolons, played in this order: a name as on showyourstripes.info (Uppsala, Sweden), a place alone (Uppsala), a country, a region (Europe) or all. Every name (leave out the quotes): https://github.com/gkaramanis/stripes-saver/blob/main/steam/locations.txt" group="Places"
+# @config places text "Places" default="Global; Sweden; Uppsala, Sweden; Stockholm, Sweden; Greece; Athens, Greece" maxlen=8000 help="Separated by semicolons, played in this order: a name as on showyourstripes.info (Uppsala, Sweden), a place alone (Uppsala), a country, a region (Europe) or all. Every name: https://github.com/gkaramanis/stripes-saver/blob/main/awtrix/locations.txt" group="Places"
 # @config order select "Order" default=list options=list,shuffled group="Places"
 # @config styleIn select "Build in" default=sweep options=sweep,rise,scatter,fade,drop,open,blinds,iris,dissolve,warming,random group="Drawing"
 # @config styleOut select "Build out" default=fade options=none,sweep,rise,scatter,fade,drop,open,blinds,iris,dissolve,warming,random group="Drawing"

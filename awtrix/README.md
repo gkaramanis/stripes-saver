@@ -19,7 +19,7 @@ The app runs offline, because all the data is in the script.
 
 The options are in the app's settings in the web UI.
 
-- **Places:** names separated by semicolons, played in that order. Write a full name (`Uppsala, Sweden`), a place on its own (`Uppsala`), a country, a region (`Europe`) or `all`. [locations.txt](../steam/locations.txt) lists every name. Leave out the quotes.
+- **Places:** names separated by semicolons, played in that order. Write a full name (`Uppsala, Sweden`), a place on its own (`Uppsala`), a country, a region (`Europe`) or `all`. [locations.txt](locations.txt) lists every name.
 - **Order:** list or shuffled.
 - **Build in and Build out:** the ten styles, or Random. Build out can also be None, which leaves the stripes on screen until the clock's own transition takes them away.
 - **Build time, Show name and years, Duration.**
@@ -33,7 +33,7 @@ Two styles have other names here. On columns one pixel wide, Flip opens from the
 ## Building
 
 ```sh
-python3 awtrix/stripes.py   # refresh the location table in stripes.be from data/stripes.json
+python3 awtrix/stripes.py   # refresh the location table in stripes.be and locations.txt from data/stripes.json
 ```
 
 ## Data and credit

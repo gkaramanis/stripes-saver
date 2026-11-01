@@ -4,6 +4,8 @@ Every location keeps the saver's name and order. Its years are averaged into 52
 columns on the 18-step cold-to-warm scale and written as one letter per column
 (a = coldest, r = warmest, - = no data), so 176 or 287 years fit the 52x16 screen.
 
+It also writes locations.txt, every name the Places setting accepts, by region.
+
     python3 awtrix/stripes.py
 """
 
@@ -15,6 +17,7 @@ import unicodedata
 HERE = pathlib.Path(__file__).resolve().parent
 DATA = HERE.parent / "data/stripes.json"
 SCRIPT = HERE / "stripes.be"
+LIST = HERE / "locations.txt"
 WIDTH = 52
 
 # ColorBrewer Blues and Reds plus the two extremes, coldest first
@@ -48,6 +51,35 @@ def columns(stripes, level):
     return out
 
 
+HEADER = """Stripes locations for AWTRIX
+
+Every location the Stripes app can show, by region. Each country comes first,
+followed by its cities. Type names into the Places setting, separated by
+semicolons, in the order they should play:
+
+    Global; Sweden; Stockholm, Sweden
+
+A region's name (Europe) plays all its locations, and all plays every one.
+"""
+
+
+# Lowercases A-Z only, like jq's ascii_downcase in steam/build.sh
+def ascii_lower(s):
+    return "".join(chr(ord(c) + 32) if "A" <= c <= "Z" else c for c in s)
+
+
+# Grouped and ordered like steam/locations.txt
+def write_list(locs):
+    groups = {}
+    for loc in locs:
+        groups.setdefault(loc["region"], []).append(loc)
+    parts = [HEADER]
+    for region in sorted(groups, key=lambda r: (r != "Global", r)):
+        rows = sorted(groups[region], key=lambda l: (ascii_lower(l["country"]), ascii_lower(l["place"])))
+        parts.append(region + "\n\n" + "\n".join(name(l) for l in rows) + "\n")
+    LIST.write_text("\n".join(parts))
+
+
 def main():
     data = json.loads(DATA.read_text())
     level = {i: SCALE.index(c) if c in SCALE else -1 for i, c in enumerate(data["palette"])}
@@ -65,6 +97,8 @@ def main():
     _, tail = rest.split(end)
     SCRIPT.write_text(head + begin + table + "\n" + end + tail)
     print(f"{len(rows)} places written to {SCRIPT}")
+    write_list(data["locations"])
+    print(f"Every name listed in {LIST}")
 
 
 main()
