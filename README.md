@@ -6,7 +6,7 @@ A Windows version by Carey Blunt is in [`windows/`](windows/README.md), with its
 
 A Steam Deck and Big Picture version is in [`steam/`](steam/README.md), with its own install steps.
 
-An app for AWTRIX NG clocks, such as the Ulanzi TC002, is in [`awtrix/`](awtrix/README.md).
+An app for AWTRIX NG clocks, such as the Ulanzi TC002, is in [`awtrix/`](awtrix/README.md) and on the [AWTRIX Hub](https://awtrix.de/script/X9n6TDj2SfmE).
 
 *Note:* On macOS 26 and later, the `Options…` button can stop responding after the screensaver has run. It's a macOS bug that affects other third-party screensavers too. Quit and reopen System Settings, and `Options…` works again.
 
